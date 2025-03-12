@@ -1,0 +1,40 @@
+{
+  "segments": [
+    {
+      "seg_begin": 0.26,
+      "seg_end": 13.57,
+      "seg_id": 1,
+      "spk_id": "spk1"
+    },
+    {
+      "seg_begin": 17.66,
+      "seg_end": 26.05,
+      "seg_id": 2,
+      "spk_id": "spk1"
+    },
+    {
+      "seg_begin": 36.96,
+      "seg_end": 45.73,
+      "seg_id": 3,
+      "spk_id": "spk2"
+    },
+    {
+      "seg_begin": 51.46,
+      "seg_end": 80.96,
+      "seg_id": 4,
+      "spk_id": "spk2"
+    }
+  ],
+  "speakers": [
+    {
+      "duration": 21.69,
+      "nbr_seg": 2,
+      "spk_id": "spk1"
+    },
+    {
+      "duration": 38.27,
+      "nbr_seg": 2,
+      "spk_id": "spk2"
+    }
+  ]
+}

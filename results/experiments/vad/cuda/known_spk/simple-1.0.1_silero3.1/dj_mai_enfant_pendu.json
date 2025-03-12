@@ -1,0 +1,124 @@
+{
+  "segments": [
+    {
+      "seg_begin": 5.15,
+      "seg_end": 6.28,
+      "seg_id": 1,
+      "spk_id": "spk1"
+    },
+    {
+      "seg_begin": 6.28,
+      "seg_end": 14.53,
+      "seg_id": 2,
+      "spk_id": "spk2"
+    },
+    {
+      "seg_begin": 15.55,
+      "seg_end": 19.68,
+      "seg_id": 3,
+      "spk_id": "spk1"
+    },
+    {
+      "seg_begin": 19.68,
+      "seg_end": 21.44,
+      "seg_id": 4,
+      "spk_id": "spk2"
+    },
+    {
+      "seg_begin": 21.79,
+      "seg_end": 23.93,
+      "seg_id": 5,
+      "spk_id": "spk1"
+    },
+    {
+      "seg_begin": 24.29,
+      "seg_end": 24.61,
+      "seg_id": 6,
+      "spk_id": "spk2"
+    },
+    {
+      "seg_begin": 27.74,
+      "seg_end": 28.16,
+      "seg_id": 7,
+      "spk_id": "spk2"
+    },
+    {
+      "seg_begin": 31.58,
+      "seg_end": 34.3,
+      "seg_id": 8,
+      "spk_id": "spk2"
+    },
+    {
+      "seg_begin": 34.85,
+      "seg_end": 42.27,
+      "seg_id": 9,
+      "spk_id": "spk1"
+    },
+    {
+      "seg_begin": 43.01,
+      "seg_end": 48.44,
+      "seg_id": 10,
+      "spk_id": "spk2"
+    },
+    {
+      "seg_begin": 48.44,
+      "seg_end": 49.09,
+      "seg_id": 11,
+      "spk_id": "spk1"
+    },
+    {
+      "seg_begin": 49.73,
+      "seg_end": 56.96,
+      "seg_id": 12,
+      "spk_id": "spk2"
+    },
+    {
+      "seg_begin": 57.98,
+      "seg_end": 60.03,
+      "seg_id": 13,
+      "spk_id": "spk1"
+    },
+    {
+      "seg_begin": 60.86,
+      "seg_end": 63.2,
+      "seg_id": 14,
+      "spk_id": "spk2"
+    },
+    {
+      "seg_begin": 64.32,
+      "seg_end": 70.59,
+      "seg_id": 15,
+      "spk_id": "spk1"
+    },
+    {
+      "seg_begin": 71.33,
+      "seg_end": 76.06,
+      "seg_id": 16,
+      "spk_id": "spk2"
+    },
+    {
+      "seg_begin": 76.06,
+      "seg_end": 78.17,
+      "seg_id": 17,
+      "spk_id": "spk1"
+    },
+    {
+      "seg_begin": 78.91,
+      "seg_end": 79.33,
+      "seg_id": 18,
+      "spk_id": "spk2"
+    }
+  ],
+  "speakers": [
+    {
+      "duration": 25.89,
+      "nbr_seg": 8,
+      "spk_id": "spk1"
+    },
+    {
+      "duration": 33.6,
+      "nbr_seg": 10,
+      "spk_id": "spk2"
+    }
+  ]
+}

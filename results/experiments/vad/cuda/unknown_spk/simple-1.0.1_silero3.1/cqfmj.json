@@ -1,0 +1,28 @@
+{
+  "segments": [
+    {
+      "seg_begin": 0.74,
+      "seg_end": 20.77,
+      "seg_id": 1,
+      "spk_id": "spk1"
+    },
+    {
+      "seg_begin": 23.52,
+      "seg_end": 114.46,
+      "seg_id": 2,
+      "spk_id": "spk2"
+    }
+  ],
+  "speakers": [
+    {
+      "duration": 20.03,
+      "nbr_seg": 1,
+      "spk_id": "spk1"
+    },
+    {
+      "duration": 90.94,
+      "nbr_seg": 1,
+      "spk_id": "spk2"
+    }
+  ]
+}
