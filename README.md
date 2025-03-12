@@ -1,6 +1,7 @@
-# benchmark-diarization
-This is the benchmark of [linto-diarization](https://github.com/linto-ai/linto-diarization).
-More precisely of images on [LinTO dockerhub](https://hub.docker.com/u/lintoai):
+# Benchmark of Linto AI Speaker Diarization
+
+This is the benchmark of [linto-ai/linto-diarization](https://github.com/linto-ai/linto-diarization),
+i.e. of images on [LinTO dockerhub](https://hub.docker.com/u/lintoai):
 * [`lintoai/linto-diarization-simple`](https://hub.docker.com/r/lintoai/linto-diarization-simple)
 * [`lintoai/linto-diarization-pyannote`](https://hub.docker.com/r/lintoai/linto-diarization-pyannote)
 * [`lintoai/linto-diarization-pybk`](https://hub.docker.com/r/lintoai/linto-diarization-pybk)
