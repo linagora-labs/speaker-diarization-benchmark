@@ -1,0 +1,115 @@
+{
+  "segments": [
+    {
+      "seg_begin": 0.01,
+      "seg_end": 18.54,
+      "seg_id": 1,
+      "spk_id": "spk1"
+    },
+    {
+      "seg_begin": 19.46,
+      "seg_end": 29.07,
+      "seg_id": 2,
+      "spk_id": "spk2"
+    },
+    {
+      "seg_begin": 29.36,
+      "seg_end": 33.97,
+      "seg_id": 3,
+      "spk_id": "spk1"
+    },
+    {
+      "seg_begin": 33.97,
+      "seg_end": 41.49,
+      "seg_id": 4,
+      "spk_id": "spk3"
+    },
+    {
+      "seg_begin": 41.49,
+      "seg_end": 58.8,
+      "seg_id": 5,
+      "spk_id": "spk1"
+    },
+    {
+      "seg_begin": 58.8,
+      "seg_end": 66.49,
+      "seg_id": 6,
+      "spk_id": "spk2"
+    },
+    {
+      "seg_begin": 66.49,
+      "seg_end": 71.31,
+      "seg_id": 7,
+      "spk_id": "spk1"
+    },
+    {
+      "seg_begin": 71.41,
+      "seg_end": 93.51,
+      "seg_id": 8,
+      "spk_id": "spk4"
+    },
+    {
+      "seg_begin": 84.87,
+      "seg_end": 98.06,
+      "seg_id": 9,
+      "spk_id": "spk5"
+    },
+    {
+      "seg_begin": 93.51,
+      "seg_end": 101.61,
+      "seg_id": 10,
+      "spk_id": "spk1"
+    },
+    {
+      "seg_begin": 101.61,
+      "seg_end": 106.02,
+      "seg_id": 11,
+      "spk_id": "spk4"
+    },
+    {
+      "seg_begin": 106.02,
+      "seg_end": 115.01,
+      "seg_id": 12,
+      "spk_id": "spk1"
+    },
+    {
+      "seg_begin": 115.2,
+      "seg_end": 128.03,
+      "seg_id": 13,
+      "spk_id": "spk2"
+    },
+    {
+      "seg_begin": 128.61,
+      "seg_end": 141.0,
+      "seg_id": 14,
+      "spk_id": "spk1"
+    }
+  ],
+  "speakers": [
+    {
+      "duration": 74.74000000000001,
+      "nbr_seg": 7,
+      "spk_id": "spk1"
+    },
+    {
+      "duration": 30.14,
+      "nbr_seg": 3,
+      "spk_id": "spk2"
+    },
+    {
+      "duration": 7.53,
+      "nbr_seg": 1,
+      "spk_id": "spk3"
+    },
+    {
+      "duration": 26.5,
+      "nbr_seg": 2,
+      "spk_id": "spk4"
+    },
+    {
+      "duration": 13.19,
+      "nbr_seg": 1,
+      "spk_id": "spk5"
+    }
+  ]
+}

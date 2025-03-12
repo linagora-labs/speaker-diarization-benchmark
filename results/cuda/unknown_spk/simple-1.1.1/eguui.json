@@ -1,0 +1,117 @@
+{
+  "segments": [
+    {
+      "seg_begin": 0.55,
+      "seg_end": 39.17,
+      "seg_id": 1,
+      "spk_id": "spk1"
+    },
+    {
+      "seg_begin": 39.17,
+      "seg_end": 41.42,
+      "seg_id": 2,
+      "spk_id": "spk2"
+    },
+    {
+      "seg_begin": 41.42,
+      "seg_end": 45.92,
+      "seg_id": 3,
+      "spk_id": "spk1"
+    },
+    {
+      "seg_begin": 45.92,
+      "seg_end": 48.17,
+      "seg_id": 4,
+      "spk_id": "spk2"
+    },
+    {
+      "seg_begin": 48.17,
+      "seg_end": 51.17,
+      "seg_id": 5,
+      "spk_id": "spk1"
+    },
+    {
+      "seg_begin": 51.17,
+      "seg_end": 59.42,
+      "seg_id": 6,
+      "spk_id": "spk2"
+    },
+    {
+      "seg_begin": 59.42,
+      "seg_end": 65.42,
+      "seg_id": 7,
+      "spk_id": "spk1"
+    },
+    {
+      "seg_begin": 65.42,
+      "seg_end": 69.17,
+      "seg_id": 8,
+      "spk_id": "spk2"
+    },
+    {
+      "seg_begin": 69.17,
+      "seg_end": 72.17,
+      "seg_id": 9,
+      "spk_id": "spk1"
+    },
+    {
+      "seg_begin": 72.17,
+      "seg_end": 75.43,
+      "seg_id": 10,
+      "spk_id": "spk2"
+    },
+    {
+      "seg_begin": 75.43,
+      "seg_end": 76.93,
+      "seg_id": 11,
+      "spk_id": "spk1"
+    },
+    {
+      "seg_begin": 76.93,
+      "seg_end": 77.68,
+      "seg_id": 12,
+      "spk_id": "spk3"
+    },
+    {
+      "seg_begin": 77.68,
+      "seg_end": 88.18,
+      "seg_id": 13,
+      "spk_id": "spk2"
+    },
+    {
+      "seg_begin": 88.18,
+      "seg_end": 89.68,
+      "seg_id": 14,
+      "spk_id": "spk1"
+    },
+    {
+      "seg_begin": 89.68,
+      "seg_end": 98.81,
+      "seg_id": 15,
+      "spk_id": "spk3"
+    },
+    {
+      "seg_begin": 100.61,
+      "seg_end": 101.21,
+      "seg_id": 16,
+      "spk_id": "spk1"
+    }
+  ],
+  "speakers": [
+    {
+      "duration": 58.73,
+      "nbr_seg": 8,
+      "spk_id": "spk1"
+    },
+    {
+      "duration": 30.26,
+      "nbr_seg": 6,
+      "spk_id": "spk2"
+    },
+    {
+      "duration": 9.88,
+      "nbr_seg": 2,
+      "spk_id": "spk3"
+    }
+  ]
+}

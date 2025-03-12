@@ -1,0 +1,118 @@
+{
+  "segments": [
+    {
+      "seg_begin": 2.59,
+      "seg_end": 9.37,
+      "seg_id": 1,
+      "spk_id": "spk1"
+    },
+    {
+      "seg_begin": 10.34,
+      "seg_end": 12.21,
+      "seg_id": 2,
+      "spk_id": "spk2"
+    },
+    {
+      "seg_begin": 12.21,
+      "seg_end": 12.89,
+      "seg_id": 3,
+      "spk_id": "spk1"
+    },
+    {
+      "seg_begin": 14.11,
+      "seg_end": 15.07,
+      "seg_id": 4,
+      "spk_id": "spk2"
+    },
+    {
+      "seg_begin": 16.42,
+      "seg_end": 17.44,
+      "seg_id": 5,
+      "spk_id": "spk1"
+    },
+    {
+      "seg_begin": 21.44,
+      "seg_end": 26.62,
+      "seg_id": 6,
+      "spk_id": "spk2"
+    },
+    {
+      "seg_begin": 26.82,
+      "seg_end": 34.46,
+      "seg_id": 7,
+      "spk_id": "spk1"
+    },
+    {
+      "seg_begin": 35.59,
+      "seg_end": 40.46,
+      "seg_id": 8,
+      "spk_id": "spk2"
+    },
+    {
+      "seg_begin": 40.46,
+      "seg_end": 46.27,
+      "seg_id": 9,
+      "spk_id": "spk1"
+    },
+    {
+      "seg_begin": 47.23,
+      "seg_end": 47.97,
+      "seg_id": 10,
+      "spk_id": "spk2"
+    },
+    {
+      "seg_begin": 52.67,
+      "seg_end": 55.45,
+      "seg_id": 11,
+      "spk_id": "spk2"
+    },
+    {
+      "seg_begin": 56.13,
+      "seg_end": 57.63,
+      "seg_id": 12,
+      "spk_id": "spk1"
+    },
+    {
+      "seg_begin": 58.63,
+      "seg_end": 60.09,
+      "seg_id": 13,
+      "spk_id": "spk2"
+    },
+    {
+      "seg_begin": 61.28,
+      "seg_end": 61.95,
+      "seg_id": 14,
+      "spk_id": "spk1"
+    },
+    {
+      "seg_begin": 66.08,
+      "seg_end": 75.29,
+      "seg_id": 15,
+      "spk_id": "spk1"
+    },
+    {
+      "seg_begin": 78.56,
+      "seg_end": 80.7,
+      "seg_id": 16,
+      "spk_id": "spk2"
+    },
+    {
+      "seg_begin": 81.38,
+      "seg_end": 82.3,
+      "seg_id": 17,
+      "spk_id": "spk1"
+    }
+  ],
+  "speakers": [
+    {
+      "duration": 34.24,
+      "nbr_seg": 9,
+      "spk_id": "spk1"
+    },
+    {
+      "duration": 20.01,
+      "nbr_seg": 8,
+      "spk_id": "spk2"
+    }
+  ]
+}

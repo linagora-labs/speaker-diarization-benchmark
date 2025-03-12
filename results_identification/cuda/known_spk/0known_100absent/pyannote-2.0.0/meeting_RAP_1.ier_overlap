@@ -1,0 +1,15 @@
+{
+    "IER": 0.3948421882254968,
+    "DER": {
+        "confusion": 820.0629999999994,
+        "missed detection": 172.1459999999999,
+        "correct": 1762.3699999999965,
+        "false alarm": 95.41500000000008,
+        "total": 2754.578999999996,
+        "diarization error rate": 0.3948421882254968
+    },
+    "NumberOfSpeakers": [
+        4,
+        4
+    ]
+}

@@ -1,0 +1,829 @@
+{
+    "segments": [
+        {
+            "seg_id": 1,
+            "spk_id": "Guest-1",
+            "seg_begin": 1.26,
+            "seg_end": 4.36
+        },
+        {
+            "seg_id": 2,
+            "spk_id": "Guest-1",
+            "seg_begin": 4.8,
+            "seg_end": 6.199999999999999
+        },
+        {
+            "seg_id": 3,
+            "spk_id": "Guest-1",
+            "seg_begin": 8.62,
+            "seg_end": 13.299999999999999
+        },
+        {
+            "seg_id": 4,
+            "spk_id": "Guest-2",
+            "seg_begin": 14.87,
+            "seg_end": 20.91
+        },
+        {
+            "seg_id": 5,
+            "spk_id": "Guest-2",
+            "seg_begin": 20.91,
+            "seg_end": 22.87
+        },
+        {
+            "seg_id": 6,
+            "spk_id": "Guest-3",
+            "seg_begin": 22.92,
+            "seg_end": 26.8
+        },
+        {
+            "seg_id": 7,
+            "spk_id": "Guest-4",
+            "seg_begin": 28.98,
+            "seg_end": 34.980000000000004
+        },
+        {
+            "seg_id": 8,
+            "spk_id": "Guest-1",
+            "seg_begin": 35.99,
+            "seg_end": 41.910000000000004
+        },
+        {
+            "seg_id": 9,
+            "spk_id": "Guest-1",
+            "seg_begin": 45.68,
+            "seg_end": 46.839999999999996
+        },
+        {
+            "seg_id": 10,
+            "spk_id": "Guest-5",
+            "seg_begin": 46.84,
+            "seg_end": 51.28
+        },
+        {
+            "seg_id": 11,
+            "spk_id": "Guest-1",
+            "seg_begin": 55.3,
+            "seg_end": 56.059999999999995
+        },
+        {
+            "seg_id": 12,
+            "spk_id": "Guest-1",
+            "seg_begin": 57.87,
+            "seg_end": 90.03
+        },
+        {
+            "seg_id": 13,
+            "spk_id": "Guest-1",
+            "seg_begin": 92.2,
+            "seg_end": 94.84
+        },
+        {
+            "seg_id": 14,
+            "spk_id": "Guest-2",
+            "seg_begin": 94.84,
+            "seg_end": 101.72
+        },
+        {
+            "seg_id": 15,
+            "spk_id": "Guest-2",
+            "seg_begin": 101.76,
+            "seg_end": 111.28
+        },
+        {
+            "seg_id": 16,
+            "spk_id": "Guest-2",
+            "seg_begin": 112.39,
+            "seg_end": 114.35
+        },
+        {
+            "seg_id": 17,
+            "spk_id": "Guest-2",
+            "seg_begin": 116.24,
+            "seg_end": 119.6
+        },
+        {
+            "seg_id": 18,
+            "spk_id": "Guest-2",
+            "seg_begin": 121.56,
+            "seg_end": 143.56
+        },
+        {
+            "seg_id": 19,
+            "spk_id": "Guest-2",
+            "seg_begin": 143.6,
+            "seg_end": 145.51999999999998
+        },
+        {
+            "seg_id": 20,
+            "spk_id": "Guest-2",
+            "seg_begin": 145.79,
+            "seg_end": 150.23
+        },
+        {
+            "seg_id": 21,
+            "spk_id": "Guest-2",
+            "seg_begin": 153.47,
+            "seg_end": 156.59
+        },
+        {
+            "seg_id": 22,
+            "spk_id": "Guest-1",
+            "seg_begin": 158.15,
+            "seg_end": 165.83
+        },
+        {
+            "seg_id": 23,
+            "spk_id": "Guest-1",
+            "seg_begin": 167.72,
+            "seg_end": 172.44
+        },
+        {
+            "seg_id": 24,
+            "spk_id": "Guest-1",
+            "seg_begin": 172.84,
+            "seg_end": 174.6
+        },
+        {
+            "seg_id": 25,
+            "spk_id": "Guest-2",
+            "seg_begin": 174.6,
+            "seg_end": 176.92
+        },
+        {
+            "seg_id": 26,
+            "spk_id": "Guest-2",
+            "seg_begin": 179.88,
+            "seg_end": 187.68
+        },
+        {
+            "seg_id": 27,
+            "spk_id": "Guest-2",
+            "seg_begin": 189.48,
+            "seg_end": 192.6
+        },
+        {
+            "seg_id": 28,
+            "spk_id": "Guest-2",
+            "seg_begin": 193.77,
+            "seg_end": 203.01000000000002
+        },
+        {
+            "seg_id": 29,
+            "spk_id": "Guest-2",
+            "seg_begin": 205.24,
+            "seg_end": 214.88
+        },
+        {
+            "seg_id": 30,
+            "spk_id": "Guest-3",
+            "seg_begin": 217.73,
+            "seg_end": 220.97
+        },
+        {
+            "seg_id": 31,
+            "spk_id": "Guest-2",
+            "seg_begin": 220.97,
+            "seg_end": 222.41
+        },
+        {
+            "seg_id": 32,
+            "spk_id": "Guest-1",
+            "seg_begin": 224.19,
+            "seg_end": 228.75
+        },
+        {
+            "seg_id": 33,
+            "spk_id": "Guest-2",
+            "seg_begin": 228.75,
+            "seg_end": 232.47
+        },
+        {
+            "seg_id": 34,
+            "spk_id": "Guest-1",
+            "seg_begin": 232.47,
+            "seg_end": 242.91
+        },
+        {
+            "seg_id": 35,
+            "spk_id": "Guest-2",
+            "seg_begin": 242.91,
+            "seg_end": 248.59
+        },
+        {
+            "seg_id": 36,
+            "spk_id": "Guest-2",
+            "seg_begin": 249.59,
+            "seg_end": 250.39000000000001
+        },
+        {
+            "seg_id": 37,
+            "spk_id": "Guest-2",
+            "seg_begin": 251.39,
+            "seg_end": 286.75
+        },
+        {
+            "seg_id": 38,
+            "spk_id": "Guest-2",
+            "seg_begin": 287.59,
+            "seg_end": 307.63
+        },
+        {
+            "seg_id": 39,
+            "spk_id": "Guest-2",
+            "seg_begin": 307.96,
+            "seg_end": 319.15999999999997
+        },
+        {
+            "seg_id": 40,
+            "spk_id": "Guest-1",
+            "seg_begin": 320.39,
+            "seg_end": 323.59
+        },
+        {
+            "seg_id": 41,
+            "spk_id": "Guest-2",
+            "seg_begin": 323.59,
+            "seg_end": 326.95
+        },
+        {
+            "seg_id": 42,
+            "spk_id": "Guest-1",
+            "seg_begin": 326.95,
+            "seg_end": 328.90999999999997
+        },
+        {
+            "seg_id": 43,
+            "spk_id": "Guest-2",
+            "seg_begin": 328.91,
+            "seg_end": 333.31
+        },
+        {
+            "seg_id": 44,
+            "spk_id": "Guest-2",
+            "seg_begin": 334.67,
+            "seg_end": 347.39000000000004
+        },
+        {
+            "seg_id": 45,
+            "spk_id": "Guest-2",
+            "seg_begin": 349.31,
+            "seg_end": 365.75
+        },
+        {
+            "seg_id": 46,
+            "spk_id": "Guest-2",
+            "seg_begin": 367.24,
+            "seg_end": 381.56
+        },
+        {
+            "seg_id": 47,
+            "spk_id": "Guest-2",
+            "seg_begin": 382.35,
+            "seg_end": 386.71000000000004
+        },
+        {
+            "seg_id": 48,
+            "spk_id": "Guest-2",
+            "seg_begin": 387.2,
+            "seg_end": 392.76
+        },
+        {
+            "seg_id": 49,
+            "spk_id": "Guest-2",
+            "seg_begin": 393.48,
+            "seg_end": 396.64000000000004
+        },
+        {
+            "seg_id": 50,
+            "spk_id": "Guest-2",
+            "seg_begin": 398.6,
+            "seg_end": 408.76000000000005
+        },
+        {
+            "seg_id": 51,
+            "spk_id": "Guest-2",
+            "seg_begin": 408.84,
+            "seg_end": 414.64
+        },
+        {
+            "seg_id": 52,
+            "spk_id": "Guest-2",
+            "seg_begin": 415.67,
+            "seg_end": 417.19
+        },
+        {
+            "seg_id": 53,
+            "spk_id": "Guest-1",
+            "seg_begin": 418.75,
+            "seg_end": 421.59
+        },
+        {
+            "seg_id": 54,
+            "spk_id": "Guest-1",
+            "seg_begin": 425.52,
+            "seg_end": 435.59999999999997
+        },
+        {
+            "seg_id": 55,
+            "spk_id": "Guest-1",
+            "seg_begin": 437.28,
+            "seg_end": 440.52
+        },
+        {
+            "seg_id": 56,
+            "spk_id": "Guest-2",
+            "seg_begin": 440.52,
+            "seg_end": 448.76
+        },
+        {
+            "seg_id": 57,
+            "spk_id": "Guest-2",
+            "seg_begin": 450.4,
+            "seg_end": 451.03999999999996
+        },
+        {
+            "seg_id": 58,
+            "spk_id": "Guest-2",
+            "seg_begin": 452.67,
+            "seg_end": 453.19
+        },
+        {
+            "seg_id": 59,
+            "spk_id": "Guest-3",
+            "seg_begin": 456.57,
+            "seg_end": 461.45
+        },
+        {
+            "seg_id": 60,
+            "spk_id": "Guest-3",
+            "seg_begin": 461.96,
+            "seg_end": 468.91999999999996
+        },
+        {
+            "seg_id": 61,
+            "spk_id": "Guest-3",
+            "seg_begin": 470.92,
+            "seg_end": 492.6
+        },
+        {
+            "seg_id": 62,
+            "spk_id": "Guest-3",
+            "seg_begin": 493.55,
+            "seg_end": 499.71000000000004
+        },
+        {
+            "seg_id": 63,
+            "spk_id": "Guest-3",
+            "seg_begin": 499.76,
+            "seg_end": 506.76
+        },
+        {
+            "seg_id": 64,
+            "spk_id": "Guest-3",
+            "seg_begin": 506.76,
+            "seg_end": 508.2
+        },
+        {
+            "seg_id": 65,
+            "spk_id": "Guest-3",
+            "seg_begin": 513.61,
+            "seg_end": 514.09
+        },
+        {
+            "seg_id": 66,
+            "spk_id": "Guest-1",
+            "seg_begin": 517.92,
+            "seg_end": 531.64
+        },
+        {
+            "seg_id": 67,
+            "spk_id": "Guest-1",
+            "seg_begin": 533.6,
+            "seg_end": 534.6
+        },
+        {
+            "seg_id": 68,
+            "spk_id": "Guest-1",
+            "seg_begin": 536.08,
+            "seg_end": 539.44
+        },
+        {
+            "seg_id": 69,
+            "spk_id": "Guest-2",
+            "seg_begin": 539.44,
+            "seg_end": 542.72
+        },
+        {
+            "seg_id": 70,
+            "spk_id": "Guest-2",
+            "seg_begin": 543.51,
+            "seg_end": 547.63
+        },
+        {
+            "seg_id": 71,
+            "spk_id": "Guest-1",
+            "seg_begin": 547.63,
+            "seg_end": 549.99
+        },
+        {
+            "seg_id": 72,
+            "spk_id": "Guest-2",
+            "seg_begin": 551.8,
+            "seg_end": 561.8399999999999
+        },
+        {
+            "seg_id": 73,
+            "spk_id": "Guest-2",
+            "seg_begin": 562.91,
+            "seg_end": 564.5899999999999
+        },
+        {
+            "seg_id": 74,
+            "spk_id": "Guest-1",
+            "seg_begin": 574.57,
+            "seg_end": 574.9300000000001
+        },
+        {
+            "seg_id": 75,
+            "spk_id": "Guest-1",
+            "seg_begin": 578.22,
+            "seg_end": 588.88
+        },
+        {
+            "seg_id": 76,
+            "spk_id": "Guest-1",
+            "seg_begin": 588.92,
+            "seg_end": 589.4399999999999
+        },
+        {
+            "seg_id": 77,
+            "spk_id": "Guest-1",
+            "seg_begin": 592.43,
+            "seg_end": 594.5899999999999
+        },
+        {
+            "seg_id": 78,
+            "spk_id": "Guest-3",
+            "seg_begin": 594.64,
+            "seg_end": 597.36
+        },
+        {
+            "seg_id": 79,
+            "spk_id": "Guest-3",
+            "seg_begin": 597.52,
+            "seg_end": 625.4399999999999
+        },
+        {
+            "seg_id": 80,
+            "spk_id": "Guest-3",
+            "seg_begin": 626.03,
+            "seg_end": 649.55
+        },
+        {
+            "seg_id": 81,
+            "spk_id": "Guest-3",
+            "seg_begin": 651.32,
+            "seg_end": 660.72
+        },
+        {
+            "seg_id": 82,
+            "spk_id": "Guest-3",
+            "seg_begin": 661.15,
+            "seg_end": 673.55
+        },
+        {
+            "seg_id": 83,
+            "spk_id": "Guest-3",
+            "seg_begin": 674.67,
+            "seg_end": 706.75
+        },
+        {
+            "seg_id": 84,
+            "spk_id": "Guest-3",
+            "seg_begin": 707.35,
+            "seg_end": 708.51
+        },
+        {
+            "seg_id": 85,
+            "spk_id": "Guest-3",
+            "seg_begin": 709.87,
+            "seg_end": 723.27
+        },
+        {
+            "seg_id": 86,
+            "spk_id": "Guest-3",
+            "seg_begin": 725.0,
+            "seg_end": 740.84
+        },
+        {
+            "seg_id": 87,
+            "spk_id": "Guest-3",
+            "seg_begin": 742.39,
+            "seg_end": 750.55
+        },
+        {
+            "seg_id": 88,
+            "spk_id": "Guest-3",
+            "seg_begin": 750.6,
+            "seg_end": 754.52
+        },
+        {
+            "seg_id": 89,
+            "spk_id": "Guest-3",
+            "seg_begin": 756.68,
+            "seg_end": 776.5999999999999
+        },
+        {
+            "seg_id": 90,
+            "spk_id": "Guest-3",
+            "seg_begin": 777.63,
+            "seg_end": 780.35
+        },
+        {
+            "seg_id": 91,
+            "spk_id": "Guest-3",
+            "seg_begin": 781.75,
+            "seg_end": 797.87
+        },
+        {
+            "seg_id": 92,
+            "spk_id": "Guest-3",
+            "seg_begin": 799.52,
+            "seg_end": 811.84
+        },
+        {
+            "seg_id": 93,
+            "spk_id": "Guest-3",
+            "seg_begin": 812.39,
+            "seg_end": 824.9499999999999
+        },
+        {
+            "seg_id": 94,
+            "spk_id": "Guest-3",
+            "seg_begin": 825.8,
+            "seg_end": 838.0
+        },
+        {
+            "seg_id": 95,
+            "spk_id": "Guest-3",
+            "seg_begin": 839.56,
+            "seg_end": 842.28
+        },
+        {
+            "seg_id": 96,
+            "spk_id": "Guest-3",
+            "seg_begin": 843.19,
+            "seg_end": 867.0300000000001
+        },
+        {
+            "seg_id": 97,
+            "spk_id": "Guest-3",
+            "seg_begin": 867.24,
+            "seg_end": 873.88
+        },
+        {
+            "seg_id": 98,
+            "spk_id": "Guest-3",
+            "seg_begin": 875.05,
+            "seg_end": 903.7299999999999
+        },
+        {
+            "seg_id": 99,
+            "spk_id": "Guest-3",
+            "seg_begin": 904.39,
+            "seg_end": 911.99
+        },
+        {
+            "seg_id": 100,
+            "spk_id": "Guest-3",
+            "seg_begin": 912.99,
+            "seg_end": 914.67
+        },
+        {
+            "seg_id": 101,
+            "spk_id": "Guest-3",
+            "seg_begin": 915.67,
+            "seg_end": 942.99
+        },
+        {
+            "seg_id": 102,
+            "spk_id": "Guest-3",
+            "seg_begin": 943.95,
+            "seg_end": 955.3900000000001
+        },
+        {
+            "seg_id": 103,
+            "spk_id": "Guest-3",
+            "seg_begin": 956.71,
+            "seg_end": 964.0300000000001
+        },
+        {
+            "seg_id": 104,
+            "spk_id": "Guest-3",
+            "seg_begin": 964.03,
+            "seg_end": 966.1899999999999
+        },
+        {
+            "seg_id": 105,
+            "spk_id": "Guest-3",
+            "seg_begin": 966.19,
+            "seg_end": 969.5100000000001
+        },
+        {
+            "seg_id": 106,
+            "spk_id": "Guest-3",
+            "seg_begin": 971.59,
+            "seg_end": 974.71
+        },
+        {
+            "seg_id": 107,
+            "spk_id": "Guest-3",
+            "seg_begin": 976.8,
+            "seg_end": 980.88
+        },
+        {
+            "seg_id": 108,
+            "spk_id": "Guest-3",
+            "seg_begin": 982.67,
+            "seg_end": 989.91
+        },
+        {
+            "seg_id": 109,
+            "spk_id": "Guest-3",
+            "seg_begin": 991.52,
+            "seg_end": 994.4399999999999
+        },
+        {
+            "seg_id": 110,
+            "spk_id": "Guest-3",
+            "seg_begin": 995.79,
+            "seg_end": 997.5899999999999
+        },
+        {
+            "seg_id": 111,
+            "spk_id": "Guest-1",
+            "seg_begin": 997.59,
+            "seg_end": 1003.59
+        },
+        {
+            "seg_id": 112,
+            "spk_id": "Guest-3",
+            "seg_begin": 1003.59,
+            "seg_end": 1014.5500000000001
+        },
+        {
+            "seg_id": 113,
+            "spk_id": "Guest-1",
+            "seg_begin": 1014.55,
+            "seg_end": 1027.03
+        },
+        {
+            "seg_id": 114,
+            "spk_id": "Guest-3",
+            "seg_begin": 1027.03,
+            "seg_end": 1030.47
+        },
+        {
+            "seg_id": 115,
+            "spk_id": "Guest-3",
+            "seg_begin": 1031.59,
+            "seg_end": 1061.99
+        },
+        {
+            "seg_id": 116,
+            "spk_id": "Guest-3",
+            "seg_begin": 1062.19,
+            "seg_end": 1080.8700000000001
+        },
+        {
+            "seg_id": 117,
+            "spk_id": "Guest-3",
+            "seg_begin": 1082.83,
+            "seg_end": 1092.79
+        },
+        {
+            "seg_id": 118,
+            "spk_id": "Guest-3",
+            "seg_begin": 1093.04,
+            "seg_end": 1110.3999999999999
+        },
+        {
+            "seg_id": 119,
+            "spk_id": "Guest-3",
+            "seg_begin": 1112.24,
+            "seg_end": 1115.2
+        },
+        {
+            "seg_id": 120,
+            "spk_id": "Guest-3",
+            "seg_begin": 1117.13,
+            "seg_end": 1118.0500000000002
+        },
+        {
+            "seg_id": 121,
+            "spk_id": "Guest-1",
+            "seg_begin": 1118.05,
+            "seg_end": 1126.93
+        },
+        {
+            "seg_id": 122,
+            "spk_id": "Guest-3",
+            "seg_begin": 1126.93,
+            "seg_end": 1140.25
+        },
+        {
+            "seg_id": 123,
+            "spk_id": "Guest-3",
+            "seg_begin": 1141.59,
+            "seg_end": 1143.6299999999999
+        },
+        {
+            "seg_id": 124,
+            "spk_id": "Guest-3",
+            "seg_begin": 1144.67,
+            "seg_end": 1144.91
+        },
+        {
+            "seg_id": 125,
+            "spk_id": "Guest-1",
+            "seg_begin": 1144.91,
+            "seg_end": 1150.03
+        },
+        {
+            "seg_id": 126,
+            "spk_id": "Guest-1",
+            "seg_begin": 1150.08,
+            "seg_end": 1150.6799999999998
+        },
+        {
+            "seg_id": 127,
+            "spk_id": "Guest-3",
+            "seg_begin": 1155.4,
+            "seg_end": 1167.5600000000002
+        },
+        {
+            "seg_id": 128,
+            "spk_id": "Guest-3",
+            "seg_begin": 1169.28,
+            "seg_end": 1179.6
+        },
+        {
+            "seg_id": 129,
+            "spk_id": "Guest-3",
+            "seg_begin": 1180.91,
+            "seg_end": 1198.39
+        },
+        {
+            "seg_id": 130,
+            "spk_id": "Guest-3",
+            "seg_begin": 1200.08,
+            "seg_end": 1202.1999999999998
+        },
+        {
+            "seg_id": 131,
+            "spk_id": "Guest-3",
+            "seg_begin": 1202.64,
+            "seg_end": 1204.2
+        },
+        {
+            "seg_id": 132,
+            "spk_id": "Guest-3",
+            "seg_begin": 1205.63,
+            "seg_end": 1209.47
+        },
+        {
+            "seg_id": 133,
+            "spk_id": "Guest-3",
+            "seg_begin": 1210.95,
+            "seg_end": 1214.79
+        }
+    ],
+    "speakers": [
+        {
+            "spk_id": "Guest-1",
+            "duration": 169.51999999999984,
+            "nbr_seg": 31
+        },
+        {
+            "spk_id": "Guest-2",
+            "duration": 281.87999999999994,
+            "nbr_seg": 40
+        },
+        {
+            "spk_id": "Guest-3",
+            "duration": 585.56,
+            "nbr_seg": 60
+        },
+        {
+            "spk_id": "Guest-4",
+            "duration": 6.0000000000000036,
+            "nbr_seg": 1
+        },
+        {
+            "spk_id": "Guest-5",
+            "duration": 4.439999999999998,
+            "nbr_seg": 1
+        }
+    ]
+}
