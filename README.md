@@ -4,7 +4,7 @@ This is the benchmark of [linto-ai/linto-diarization](https://github.com/linto-a
 i.e. of images on [LinTO dockerhub](https://hub.docker.com/u/lintoai):
 * [`lintoai/linto-diarization-simple`](https://hub.docker.com/r/lintoai/linto-diarization-simple)
 * [`lintoai/linto-diarization-pyannote`](https://hub.docker.com/r/lintoai/linto-diarization-pyannote)
-* [`lintoai/linto-diarization-pybk`](https://hub.docker.com/r/lintoai/linto-diarization-pybk)
+* [`lintoai/linto-diarization-pybk`](https://hub.docker.com/r/lintoai/linto-diarization-pybk) (deprecated)
 
 which were previously (before a refactoring) all on [linto-platform-diarization](https://hub.docker.com/r/lintoai/linto-platform-diarization/tags)
 (versions 1.X.X were for `pybk`, 2.X.X were for `pyannote` and 3.X.X were for `simple`).
