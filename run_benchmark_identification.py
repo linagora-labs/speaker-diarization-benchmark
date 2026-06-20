@@ -104,6 +104,8 @@ if __name__ == "__main__":
     parser.add_argument('--convert_audio', default=False, action='store_true', help='convert audio to wav in 16kHz before processing')
     parser.add_argument('--overwrite', default=False, action='store_true', help='overwrite existing results (by default, existing experiments will be skipped)')
     parser.add_argument('--cache_diarization', default=False, action='store_true', help='cache diarization results')
+    parser.add_argument('--qdrant_host', type=str, default="host.docker.internal", help='host where the Qdrant server is reachable from inside the docker (default: the host running the benchmark)')
+    parser.add_argument('--qdrant_port', type=int, default=6333, help='port of the Qdrant server')
     args = parser.parse_args()
 
     assert os.path.isdir(args.folder_input), f"Folder {args.folder_input} does not exist"
@@ -116,6 +118,10 @@ if __name__ == "__main__":
     docker_options = f"""\
  -v {args.folder_speakers_samples}:/opt/speaker_samples\
  --env CACHE_DIARIZATION_RESULTS=1\
+ --add-host=host.docker.internal:host-gateway\
+ --env QDRANT_HOST={args.qdrant_host}\
+ --env QDRANT_PORT={args.qdrant_port}\
+ --env QDRANT_COLLECTION_NAME=speakers_{args.name}_{args.tag}\
     """
     if args.cache_diarization:
         folder_cache_parent = os.path.dirname(os.path.realpath(__file__))
