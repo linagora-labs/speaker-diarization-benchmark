@@ -126,6 +126,18 @@ The following plot shows the distributions of the difference between the predict
 
 ### Speaker Identification
 
+The speaker identification benchmark (`run_benchmark_identification.py`) requires a
+[Qdrant](https://qdrant.tech) server, used by recent `linto-diarization-pyannote` images
+to store and match speaker embeddings. The script checks that a Qdrant server is reachable
+on `localhost:6333` and starts one automatically (in a detached container) if none is found:
+
+```bash
+docker run -d --rm --name qdrant_diarization_bench -p 6333:6333 -v ./qdrant_storage:/qdrant/storage:z qdrant/qdrant
+```
+
+Use `--qdrant_host` / `--qdrant_port` to point to an existing server, and `--no_qdrant_autostart`
+to disable the automatic launch (in which case you must start Qdrant yourself beforehand).
+
 #### Identification Error Rates
 
 The Identification Error Rate (IER) is just the speaker classification error rates over time.
