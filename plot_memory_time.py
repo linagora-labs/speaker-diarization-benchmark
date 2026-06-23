@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import re
-from metadata import get_files_and_metadata
+from metadata import get_files_and_metadata, MEMORY_TIME_GROUPS
 
 
 def slugify(s):
@@ -140,12 +140,7 @@ if __name__ == "__main__":
                     recname = recname+".wav"                    
                     assert recname in metadata.keys(), f"Could not find information for {path_engine_name.path}/{js}\n --> Look for '{recname}' amoung possible values {metadata.keys()}"
 
-                    if metadata[recname]["group"] not in [
-                        "",
-                        "LINAGORA",
-                        "ETAPE",
-                        # "SUMM-RE",
-                    ]:
+                    if metadata[recname]["group"] not in MEMORY_TIME_GROUPS:
                         continue
 
                     duration = metadata[recname]["duration"]

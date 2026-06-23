@@ -13,7 +13,7 @@ import py3nvml.py3nvml as pynvml # GPU management
 import random
 import subprocess
 
-from metadata import get_files_and_metadata
+from metadata import get_files_and_metadata, MEMORY_TIME_GROUPS
 
 ############################################
 # VARIABLES
@@ -115,7 +115,7 @@ def get_processes(pids_to_ignore=[]):
         if p.info["pid"] in pids_to_ignore:
             continue
         cmdline = p.info["cmdline"]
-        if len(cmdline) >= 2 and cmdline[0].startswith("python") and cmdline[1] == "http_server/ingress.py":
+        if cmdline and len(cmdline) >= 2 and cmdline[0].startswith("python") and cmdline[1] == "http_server/ingress.py":
             yield p
 
 def get_processes_pid(pids_to_ignore=[]):
@@ -252,13 +252,33 @@ def launch_docker(tag, name="linto-platform-diarization", prefix = "diarization_
     command += f" {docker_image_name}"
     print(command)
     os.system(f"docker stop {dockername} 2> /dev/null")
-    os.system(command+" &")
-    print("Waiting for the docker to start...")
-    time.sleep(60)
+    # Tee the container output to a logfile, so the crash reason survives even with --rm
+    # (which removes the container, and thus its logs, as soon as it exits).
+    logfile = os.path.join(tempfile.gettempdir(), f"{dockername}.log")
+    os.system(f"{command} > {logfile} 2>&1 &")
+    print(f"Waiting for the docker to start... (logs: {logfile})")
 
-    pids = get_processes_pid(pids_to_ignore=pids_to_ignore)
+    # Poll for the server process to appear, instead of waiting a fixed amount of time:
+    # startup can be long (recursive chown of mounted volumes, model download, ingestion
+    # of speaker samples into Qdrant, ...), but can also be quick when everything is cached.
+    max_wait = 300
+    pids = []
+    waited = 0
+    while waited < max_wait:
+        # Stop early if the container died (it won't show up in 'docker ps' anymore)
+        container_alive = not os.system(f"docker ps --format '{{{{.Names}}}}' | grep -qx {dockername}")
+        pids = get_processes_pid(pids_to_ignore=pids_to_ignore)
+        if pids:
+            break
+        if not container_alive:
+            os.system(f"tail -n 40 {logfile}")
+            raise RuntimeError(f"Container {dockername} exited before the server started. See logs above ({logfile}).")
+        time.sleep(5)
+        waited += 5
+
     if len(pids) == 0:
-        raise RuntimeError("No process found. Probably the docker did not start correctly.")
+        os.system(f"tail -n 40 {logfile}")
+        raise RuntimeError(f"No process found after {max_wait}s. Probably the docker did not start correctly (see logs above, {logfile}).")
 
     return {
         "port": port,
@@ -298,9 +318,23 @@ if __name__ == "__main__":
     parser.add_argument('--tag', type=str, default=LAST_TAG, help='tag of the docker image to use, with numbers (ex: 1.0.1, 2.0.0, ...)')
     parser.add_argument('--convert_audio', default=False, action='store_true', help='convert audio to wav in 16kHz before processing')
     parser.add_argument('--overwrite', default=False, action='store_true', help='overwrite existing results (by default, existing experiments will be skipped)')
+    parser.add_argument('--groups', type=str, default=None,
+        help='comma-separated list of dataset groups to process (e.g. "LINAGORA,ETAPE,SUMM-RE"). '
+             'An empty entry matches files without a group (e.g. ",LINAGORA"). By default, all files are processed.')
+    parser.add_argument('--memory-time-only', default=False, action='store_true',
+        help='only process the files used by plot_memory_time.py for the memory/RTF analysis '
+             f'(groups {MEMORY_TIME_GROUPS}). Shortcut to avoid processing files that are not plotted.')
     args = parser.parse_args()
 
     assert os.path.isdir(args.folder_input), f"Folder {args.folder_input} does not exist"
+
+    if args.memory_time_only:
+        assert args.groups is None, "Cannot use both --groups and --memory-time-only"
+        groups_filter = set(MEMORY_TIME_GROUPS)
+    elif args.groups is not None:
+        groups_filter = set(g.strip() for g in args.groups.split(","))
+    else:
+        groups_filter = None
 
     metadata = get_files_and_metadata()
 
@@ -323,9 +357,12 @@ if __name__ == "__main__":
         for use_spk_number in False, True, :
 
             # Process from the shortest to the longest audio
-            for file in sorted(metadata.keys(), key=lambda x: metadata[x]["duration"]): 
+            for file in sorted(metadata.keys(), key=lambda x: metadata[x]["duration"]):
             # # Process in alphabetical order
             # for file in sorted(metadata.keys()):
+
+                if groups_filter is not None and metadata[file].get("group", "") not in groups_filter:
+                    continue
 
                 spk_number = metadata[file]["num_speakers"]
 

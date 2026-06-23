@@ -12,6 +12,12 @@ FILENAME_TO_NUM_SPEAKERS = dict([
 
 DEFAULT_CSV = "data/metadata.csv"
 
+# Dataset groups used for the memory/time (RTF) analysis.
+# These are the only groups plotted by plot_memory_time.py, so run_benchmark.py
+# can restrict to them (via --memory-time-only) to avoid processing unused files.
+# An empty string matches files that have no group.
+MEMORY_TIME_GROUPS = ["", "LINAGORA", "ETAPE"]
+
 def get_audio_metadata(
     filename,
     folder_input_rttm=None,
