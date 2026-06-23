@@ -264,13 +264,18 @@ def launch_docker(tag, name="linto-platform-diarization", prefix = "diarization_
     max_wait = 300
     pids = []
     waited = 0
+    container_was_alive = False
     while waited < max_wait:
-        # Stop early if the container died (it won't show up in 'docker ps' anymore)
+        # 'docker run' is launched asynchronously (with '&'), so on the first
+        # iterations the container may not show up in 'docker ps' yet because it is
+        # still being created. We must not confuse "not appeared yet" with "exited":
+        # only treat a missing container as a crash once we have seen it alive.
         container_alive = not os.system(f"docker ps --format '{{{{.Names}}}}' | grep -qx {dockername}")
+        container_was_alive = container_was_alive or container_alive
         pids = get_processes_pid(pids_to_ignore=pids_to_ignore)
         if pids:
             break
-        if not container_alive:
+        if container_was_alive and not container_alive:
             os.system(f"tail -n 40 {logfile}")
             raise RuntimeError(f"Container {dockername} exited before the server started. See logs above ({logfile}).")
         time.sleep(5)
@@ -392,7 +397,7 @@ if __name__ == "__main__":
                 print("=====================================")
                 print("Generating", output_filename_json)
                 print("Processing", file, "with", spk_number, "speakers")
-                files = {'file': open(file, 'rb')}
+                fh = open(file, 'rb')
                 data = {'spk_number': spk_number, 'max_speaker': MAX_SPEAKER}
 
                 # start = time.time()
@@ -404,21 +409,28 @@ if __name__ == "__main__":
                 slept_time = 0
                 max_sleep_time = 120 if first_run else -1
                 first_run = False
-                while True:
-                    try:
-                        start = time.time()
-                        with monitor_memory(pids):
-                            response = requests.post(
-                                url, headers=headers, data=data, files=files)
-                        break
-                    except Exception as err:
-                        import traceback
-                        print(traceback.format_exc())
-                        if slept_time > max_sleep_time:
-                            raise err
-                        print("Warning: retrying http request in 30 sec...")
-                        slept_time += 30
-                        time.sleep(30)
+                try:
+                    while True:
+                        try:
+                            # Rewind before each attempt: a previous (failed) attempt may have
+                            # consumed the stream, and reusing an exhausted handle would upload an
+                            # empty/truncated body, which the server rejects as "Invalid data found".
+                            fh.seek(0)
+                            start = time.time()
+                            with monitor_memory(pids):
+                                response = requests.post(
+                                    url, headers=headers, data=data, files={'file': fh})
+                            break
+                        except Exception as err:
+                            import traceback
+                            print(traceback.format_exc())
+                            if slept_time > max_sleep_time:
+                                raise err
+                            print("Warning: retrying http request in 30 sec...")
+                            slept_time += 30
+                            time.sleep(30)
+                finally:
+                    fh.close()
 
                 ram_peak = get_ram_peak()
                 assert ram_peak is not None, "Something went wrong when monitoring RAM memory"
