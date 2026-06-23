@@ -157,12 +157,25 @@ def build_cost_matrix(ref, hyp, ref_index, hyp_index):
     """
 
     cost_matrix = np.zeros((len(ref_index), len(hyp_index)))
-    for ref_element in ref:
-        for hyp_element in hyp:
-            i = ref_index[ref_element[0]]
-            j = hyp_index[hyp_element[0]]
-            cost_matrix[i, j] += compute_intersection_length(
-                ref_element, hyp_element)
+    if not ref or not hyp:
+        return cost_matrix
+
+    # Vectorized equivalent of the double loop over all (ref, hyp) segment pairs:
+    # pairwise overlap durations accumulated per (ref_speaker, hyp_speaker).
+    r_start = np.array([e[1] for e in ref])
+    r_end = np.array([e[2] for e in ref])
+    r_spk = np.array([ref_index[e[0]] for e in ref])
+    h_start = np.array([e[1] for e in hyp])
+    h_end = np.array([e[2] for e in hyp])
+    h_spk = np.array([hyp_index[e[0]] for e in hyp])
+
+    intersection = np.maximum(
+        0.0,
+        np.minimum(r_end[:, None], h_end[None, :]) - np.maximum(r_start[:, None], h_start[None, :]),
+    )
+    i_idx = np.broadcast_to(r_spk[:, None], intersection.shape).ravel()
+    j_idx = np.broadcast_to(h_spk[None, :], intersection.shape).ravel()
+    np.add.at(cost_matrix, (i_idx, j_idx), intersection.ravel())
     return cost_matrix
 
 
@@ -313,13 +326,19 @@ def get_fa_ms(ref_segments, hyp_segments, precison = 100):
     intersection_vector = ref_vector & hyp_vector
     union_vector = ref_vector | hyp_vector
 
-    assert sum([sum(ms_duration_vector), sum(intersection_vector)]) == sum(ref_vector)
+    # Use numpy reductions (.sum()) rather than the Python built-in sum(), which would
+    # iterate element-by-element over these arrays (length = duration * precison) in pure
+    # Python and dominates the whole runtime.
+    ms_count = ms_duration_vector.sum()
+    intersection_count = intersection_vector.sum()
+    ref_count = ref_vector.sum()
+    assert ms_count + intersection_count == ref_count
 
-    fa_duration = sum(fa_duration_vector)/precison
-    ms_duration = sum(ms_duration_vector)/precison
-    intersection = sum(intersection_vector)/precison
-    ref_duration= sum(ref_vector)/precison
-    union_duration = sum(union_vector)/precison
+    fa_duration = fa_duration_vector.sum()/precison
+    ms_duration = ms_count/precison
+    intersection = intersection_count/precison
+    ref_duration = ref_count/precison
+    union_duration = union_vector.sum()/precison
     return (fa_duration, ms_duration, intersection, ref_duration, union_duration)
 
 
@@ -610,11 +629,20 @@ def main():
 
     bder_dict = dict() # meta information dict (record all information for details)
     detailed_result_list = []
-    with cf.ProcessPoolExecutor() as executor:
-        for filename, file_bder_dict, file_detailed_result_list in executor.map(get_statistics_for_each_file,
-                                                                                rttm_dict.items()):
+    # Spinning up a process pool only pays off with many recordings. When there are just
+    # a few files (e.g. when called per-file from plot_scores.py), the fork + per-process
+    # import overhead dwarfs the actual computation, so compute serially instead.
+    if len(rttm_dict) <= 4:
+        results = (get_statistics_for_each_file(item) for item in rttm_dict.items())
+        for filename, file_bder_dict, file_detailed_result_list in results:
             detailed_result_list.extend(file_detailed_result_list)
             bder_dict[filename] = file_bder_dict
+    else:
+        with cf.ProcessPoolExecutor() as executor:
+            for filename, file_bder_dict, file_detailed_result_list in executor.map(get_statistics_for_each_file,
+                                                                                    rttm_dict.items()):
+                detailed_result_list.extend(file_detailed_result_list)
+                bder_dict[filename] = file_bder_dict
 
     if args.detailed_result:
         with open(args.detailed_result, 'w') as f:

@@ -2,9 +2,11 @@ import json
 import os
 import subprocess
 import re
+import concurrent.futures as cf
 import matplotlib.pyplot as plt
 from slugify import slugify
 import numpy as np
+from tqdm import tqdm
 
 from remove_overlaps import *
 from remove_overlaps import create_rttm_without_overlap
@@ -158,6 +160,83 @@ def adjacent_values(vals, q1, q3):
     return lower_adjacent_value, upper_adjacent_value
 
 
+def compute_file_scores(json_hyp):
+    """Compute the diarization scores for a single hypothesis file.
+
+    Designed to run in a worker process: configuration and score functions are read
+    from module globals (inherited from the parent via fork on Linux), so only the
+    picklable file path needs to be passed in.
+
+    Returns a tuple (json_hyp, dataset_name, rttm_ref_nooverlap, rttm_hyp_nooverlap,
+    scores), or None if the file should be skipped.
+    """
+    global _warned_if_recompute
+
+    recname = os.path.basename(os.path.splitext(json_hyp)[0])
+    recname = recname.split('.', 1)[0]
+
+    if recname+".wav" in metadata:
+        dataset_name = metadata[recname+".wav"]["group"]
+    else:
+        return None
+    assert dataset_name, f"ERROR: {recname} has no group (file {json_hyp})"
+    if dataset_name not in dataset_names:
+        return None
+
+    scores = perf_file = None
+    if RECOMPUTE_DER is not None:
+        perf_file = os.path.splitext(json_hyp)[0] + ".der"
+        if not REMOVE_OVERLAPS:
+            perf_file += "_overlap"
+        if not RECOMPUTE_DER and os.path.exists(perf_file):
+            with open(perf_file) as f:
+                scores = json.load(f)
+            if sorted(scores.keys()) != sorted(perfnames_all):
+                if not _warned_if_recompute:
+                    print(f"WARNING: force to recompute performances for {perf_file} (and maybe others...) because the keys are different ({sorted(scores.keys())}) != ({sorted(perfnames_all)})")
+                    _warned_if_recompute = True
+                # Force recomputation
+                scores = None
+
+    rttm_ref = recname+".rttm"
+    rttm_ref = os.path.join(path_to_rttm_ref, rttm_ref)
+
+    if not os.path.exists(rttm_ref):
+        print(f"WARNING: ignored {recname} because could not find {rttm_ref}")
+        return None
+
+    rttm_hyp = os.path.splitext(json_hyp)[0] + ".rttm"
+    rttm_ref_nooverlap = rttm_ref + "_nooverlap.rttm" if REMOVE_OVERLAPS else rttm_ref
+    rttm_hyp_nooverlap = rttm_hyp + "_nooverlap.rttm" if REMOVE_OVERLAPS else rttm_hyp
+
+    json2rttm(json_hyp, rttm_hyp)
+
+    if REMOVE_OVERLAPS:
+        create_rttm_without_overlap(
+            rttm_ref, rttm_hyp,
+            rttm_ref_nooverlap, rttm_hyp_nooverlap,
+        )
+
+    if scores is None:
+
+        # Compute DER and co
+        try:
+            scores = dict((k, v(rttm_ref_nooverlap, rttm_hyp_nooverlap))
+                for k, v in _score_funcs.items())
+        except Exception as err:
+            raise RuntimeError(f"Error processing {rttm_hyp_nooverlap}") from err
+
+        if COMPUTE_DER_WITH_MDEVAL:
+            other_scores = get_scores_from_perl_script(rttm_ref_nooverlap, rttm_hyp_nooverlap, collar=args.collar)
+            scores.update(other_scores)
+
+        if perf_file is not None:
+            with open(perf_file, "w") as f:
+                json.dump(scores, f, indent=4)
+
+    return (json_hyp, dataset_name, rttm_ref_nooverlap, rttm_hyp_nooverlap, scores)
+
+
 if __name__ == "__main__":
 
     import argparse
@@ -275,12 +354,25 @@ if __name__ == "__main__":
     num_done = 0
     figures = {}
 
+    # Total number of hypothesis files to evaluate (for the progress bar)
+    total_files = sum(
+        len(all_files_for_spk_setting.get(engine_name, {}))
+        for all_files_for_spk_setting in all_files.values()
+        for engine_name in all_engine_names
+    )
+    progress_bar = tqdm(total=total_files, desc="Computing scores", unit="file")
+
+    # Worker pool for the per-file score computation. Created here (after all the
+    # configuration globals are set) so the forked workers inherit them.
+    executor = cf.ProcessPoolExecutor()
+
     for ind, (setting_spk, all_files_for_spk_setting) in enumerate(all_files.items()):
 
         all_accuracies = {}
         all_ders = {}
         for engine_name in all_engine_names:
 
+            progress_bar.set_description(f"{setting_spk} | {engine_name.replace(chr(10), ' ')}")
             json_files = all_files_for_spk_setting.get(engine_name, {}).values()
             for dataset_name in dataset_names:
                 for k in perfnames_final:
@@ -290,82 +382,18 @@ if __name__ == "__main__":
 
             all_rttm_ref = {}
             all_rttm_hyp = {}
-            for index, json_hyp in enumerate(json_files):
+            # Each file is independent, so compute the per-file scores in parallel.
+            # executor.map preserves input order, so accumulation stays deterministic.
+            for result in executor.map(compute_file_scores, json_files):
 
-                recname = os.path.basename(os.path.splitext(json_hyp)[0])
-                recname = recname.split('.', 1)[0]
+                progress_bar.update(1)
 
-                if recname+".wav" in metadata:
-                    dataset_name = metadata[recname+".wav"]["group"]
-                else:
+                if result is None:
                     continue
-                    # assert False, f"ERROR: {recname} has no group (file {json_hyp})"
-                    # dataset_name = "UNK"
-                assert dataset_name, f"ERROR: {recname} has no group (file {json_hyp})"
-                if dataset_name not in dataset_names:
-                    continue
-
-                scores = perf_file = None
-                if RECOMPUTE_DER is not None:
-                    perf_file = os.path.splitext(json_hyp)[0] + ".der"
-                    if not REMOVE_OVERLAPS:
-                        perf_file += "_overlap"
-                    # if COMPUTE_DER_WITH_MDEVAL:
-                    #     perf_file += "_mdeval"
-                    if not RECOMPUTE_DER and os.path.exists(perf_file):
-                        with open(perf_file) as f:
-                            scores = json.load(f)
-                        if sorted(scores.keys()) != sorted(perfnames_all):
-                            if not _warned_if_recompute:
-                                print(f"WARNING: force to recompute performances for {perf_file} (and maybe others...) because the keys are different ({sorted(scores.keys())}) != ({sorted(perfnames_all)})")
-                                _warned_if_recompute = True
-                            # Force recomputation
-                            scores = None
-
-                rttm_ref = recname+".rttm"
-                rttm_ref = os.path.join(path_to_rttm_ref, rttm_ref)
-
-                if not os.path.exists(rttm_ref):
-                    print(f"WARNING: ignored {recname} because could not find {rttm_ref}")
-                    continue
-
-                # print(f"Computing... {perf_file if perf_file else json_hyp}")
-
-                rttm_hyp = os.path.splitext(json_hyp)[0] + ".rttm" #    tempfile.mktemp(suffix=".rttm")
-                rttm_ref_nooverlap = rttm_ref + "_nooverlap.rttm" if REMOVE_OVERLAPS else rttm_ref
-                rttm_hyp_nooverlap = rttm_hyp + "_nooverlap.rttm" if REMOVE_OVERLAPS else rttm_hyp
-
-                json2rttm(json_hyp, rttm_hyp)
-
-                if REMOVE_OVERLAPS:
-                    create_rttm_without_overlap(
-                        rttm_ref, rttm_hyp,
-                        rttm_ref_nooverlap, rttm_hyp_nooverlap,
-                    )
+                json_hyp, dataset_name, rttm_ref_nooverlap, rttm_hyp_nooverlap, scores = result
 
                 all_rttm_ref[dataset_name] = all_rttm_ref.get(dataset_name, []) + [rttm_ref_nooverlap]
                 all_rttm_hyp[dataset_name] = all_rttm_hyp.get(dataset_name, []) + [rttm_hyp_nooverlap]
-
-                if scores is None:
-
-                    # Compute DER and co
-                    try:
-                        scores = dict((k, v(rttm_ref_nooverlap, rttm_hyp_nooverlap))
-                            for k, v in _score_funcs.items())
-                    except Exception as err:
-                        raise RuntimeError(f"Error processing {rttm_hyp_nooverlap}") from err
-
-                    if COMPUTE_DER_WITH_MDEVAL:
-                        other_scores = get_scores_from_perl_script(rttm_ref_nooverlap, rttm_hyp_nooverlap, collar=args.collar)
-                        scores.update(other_scores)
-
-                    if perf_file is not None:
-                        with open(perf_file, "w") as f:
-                            json.dump(scores, f, indent=4)
-
-                    # Remove temporary files
-                    # for tmpfile in (rttm_hyp, rttm_ref_nooverlap, rttm_hyp_nooverlap,) if REMOVE_OVERLAPS else (rttm_hyp,):
-                    #     os.remove(tmpfile)
 
                 for k, val in scores.items():
                     if k not in perfnames_final:
@@ -538,6 +566,9 @@ if __name__ == "__main__":
                 else:
                     s += f" {scores:>11.2f} |"
             print(s)
+
+    progress_bar.close()
+    executor.shutdown()
 
     if args.output:
         for idx_figure, title in figures.items():            
