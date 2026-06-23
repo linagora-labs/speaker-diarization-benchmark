@@ -285,6 +285,29 @@ def launch_docker(tag, name="linto-diarization-pyannote", prefix = "diarization_
         os.system(f"tail -n 40 {logfile}")
         raise RuntimeError(f"No process found after {max_wait}s. Probably the docker did not start correctly (see logs above, {logfile}).")
 
+    # The server process exists now, but it still has to load the model and bind the
+    # port before it can answer. Poll /healthcheck until it is ready, otherwise the
+    # first request races startup and fails with "connection reset by peer".
+    health_url = f"http://127.0.0.1:{port}/healthcheck"
+    ready = False
+    while waited < max_wait:
+        try:
+            if requests.get(health_url, timeout=5).status_code == 200:
+                ready = True
+                break
+        except requests.exceptions.RequestException:
+            pass
+        # if the container died during startup, surface the logs instead of looping
+        if container_was_alive and os.system(f"docker ps --format '{{{{.Names}}}}' | grep -qx {dockername}"):
+            os.system(f"tail -n 40 {logfile}")
+            raise RuntimeError(f"Container {dockername} exited during startup. See logs above ({logfile}).")
+        time.sleep(3)
+        waited += 3
+
+    if not ready:
+        os.system(f"tail -n 40 {logfile}")
+        raise RuntimeError(f"Server not ready (no 200 from {health_url}) after {max_wait}s (see logs above, {logfile}).")
+
     return {
         "port": port,
         "pids": pids,
@@ -321,6 +344,12 @@ if __name__ == "__main__":
     parser.add_argument('folder_input', type=str, default=default_folder_input, help='folder containing the audio files to process', nargs='?')
     parser.add_argument('--name', type=str, default="linto-diarization-pyannote" if NEW_BUILD_SYSTEM else "linto-platform-diarization", help='name of the docker image to use')
     parser.add_argument('--tag', type=str, default=LAST_TAG, help='tag of the docker image to use, with numbers (ex: 1.0.1, 2.0.0, ...)')
+    parser.add_argument('--env', action='append', default=[], metavar='KEY=VALUE',
+        help='extra environment variable(s) to set in the container; repeatable '
+             '(e.g. --env PYANNOTE_SEGMENTATION_STEP=0.25)')
+    parser.add_argument('--suffix', type=str, default="",
+        help='suffix appended to the results folder name, to keep tuned runs separate '
+             '(e.g. --suffix _SEGSTEP0.25 -> results in pyannote-2.3.0_SEGSTEP0.25)')
     parser.add_argument('--convert_audio', default=False, action='store_true', help='convert audio to wav in 16kHz before processing')
     parser.add_argument('--overwrite', default=False, action='store_true', help='overwrite existing results (by default, existing experiments will be skipped)')
     parser.add_argument('--groups', type=str, default=None,
@@ -343,11 +372,13 @@ if __name__ == "__main__":
 
     metadata = get_files_and_metadata()
 
-    docker = launch_docker(args.tag, name=args.name)
+    options = " ".join(f"--env {e}" for e in args.env)
+
+    docker = launch_docker(args.tag, name=args.name, options=options)
     url = docker["url"]
     pids = docker["pids"]
     dockername = docker["dockername"]
-    system_name = docker["system_name"]
+    system_name = docker["system_name"] + args.suffix
     if docker["device"] == "cpu":
         folder_output = folder_output_cpu
     else:

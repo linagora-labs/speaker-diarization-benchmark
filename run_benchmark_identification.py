@@ -101,6 +101,12 @@ if __name__ == "__main__":
     parser.add_argument('folder_speakers_samples', type=str, default=default_folder_speakers_samples, help='folder containing the samples for target speakers', nargs='?')
     parser.add_argument('--name', type=str, default="linto-diarization-simple", help='name of the docker image to use')
     parser.add_argument('--tag', type=str, default=LAST_TAG, help='tag of the docker image to use, with numbers (ex: 1.0.1, 2.0.0, ...)')
+    parser.add_argument('--env', action='append', default=[], metavar='KEY=VALUE',
+        help='extra environment variable(s) to set in the container; repeatable '
+             '(e.g. --env PYANNOTE_SEGMENTATION_STEP=0.25)')
+    parser.add_argument('--suffix', type=str, default="",
+        help='suffix appended to the results folder name, to keep tuned runs separate '
+             '(e.g. --suffix=-SEGSTEP0.25). Use the = form for values starting with a dash')
     parser.add_argument('--convert_audio', default=False, action='store_true', help='convert audio to wav in 16kHz before processing')
     parser.add_argument('--overwrite', default=False, action='store_true', help='overwrite existing results (by default, existing experiments will be skipped)')
     parser.add_argument('--cache_diarization', default=False, action='store_true', help='cache diarization results')
@@ -132,6 +138,9 @@ if __name__ == "__main__":
         docker_options += f" -v {folder_cache_diarization}:/opt/cache_diarization"
         docker_options += f" -v {folder_cache_precomputed}:/opt/speaker_precomputed"
 
+    for e in args.env:
+        docker_options += f" --env {e}"
+
     docker = launch_docker(
         args.tag,
         name=args.name,
@@ -140,7 +149,7 @@ if __name__ == "__main__":
     url = docker["url"]
     pids = docker["pids"]
     dockername = docker["dockername"]
-    system_name = docker["system_name"]
+    system_name = docker["system_name"] + args.suffix
     if docker["device"] == "cpu":
         folder_output = folder_output_cpu
     else:
