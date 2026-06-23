@@ -10,8 +10,8 @@ if __name__ == "__main__":
 
     import argparse
 
-    parser = argparse.ArgumentParser(description='speaker diarization benchmark')
-    parser.add_argument('--name', type=str, default="linto-diarization-simple", help='name of the docker image to use')
+    parser = argparse.ArgumentParser(description='speaker diarization benchmark', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('--name', type=str, default="linto-diarization-pyannote", help='name of the docker image to use')
     parser.add_argument('--tag', type=str, default=LAST_TAG, help='tag of the docker image to use, with numbers (ex: 1.0.1, 2.0.0, ...)')
     args = parser.parse_args()
 

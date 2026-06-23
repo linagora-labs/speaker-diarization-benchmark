@@ -20,7 +20,7 @@ from metadata import get_files_and_metadata, MEMORY_TIME_GROUPS
 
 NEW_BUILD_SYSTEM = True
 MAX_SPEAKER = 25
-LAST_TAG = "1.0.1" if NEW_BUILD_SYSTEM else "3.0.4"
+LAST_TAG = "2.3.0" if NEW_BUILD_SYSTEM else "3.0.4"
 
 folder_output_cpu = "results/cpu"
 folder_output_gpu = "results/cuda"
@@ -202,7 +202,7 @@ def get_gpus():
 ############################################
 # Docker
 
-def launch_docker(tag, name="linto-platform-diarization", prefix = "diarization_bench", options=""):
+def launch_docker(tag, name="linto-diarization-pyannote", prefix = "diarization_bench", options=""):
 
     main_version = int(tag.split(".")[0])
     port = 8080
@@ -317,9 +317,9 @@ default_folder_input = os.path.dirname(os.path.realpath(__file__)) + "/data/benc
 
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser(description='speaker diarization benchmark')
+    parser = argparse.ArgumentParser(description='speaker diarization benchmark', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('folder_input', type=str, default=default_folder_input, help='folder containing the audio files to process', nargs='?')
-    parser.add_argument('--name', type=str, default="linto-diarization-simple" if NEW_BUILD_SYSTEM else "linto-platform-diarization", help='name of the docker image to use')
+    parser.add_argument('--name', type=str, default="linto-diarization-pyannote" if NEW_BUILD_SYSTEM else "linto-platform-diarization", help='name of the docker image to use')
     parser.add_argument('--tag', type=str, default=LAST_TAG, help='tag of the docker image to use, with numbers (ex: 1.0.1, 2.0.0, ...)')
     parser.add_argument('--convert_audio', default=False, action='store_true', help='convert audio to wav in 16kHz before processing')
     parser.add_argument('--overwrite', default=False, action='store_true', help='overwrite existing results (by default, existing experiments will be skipped)')

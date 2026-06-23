@@ -35,6 +35,7 @@ _colors = {
         "red",
         "orange",
         "gold",
+        "yellowgreen",
     ],
     "azure": [
         "blue",
