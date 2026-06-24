@@ -82,9 +82,10 @@ __with given number of speakers:__
 | Engine                             |       ETAPE |    LINAGORA |     SUMM-RE |     Simsamu | VoxConverse |
 |------------------------------------|-------------|-------------|-------------|-------------|-------------|
 | azure                              |     **9.51**|       44.44 |       _____ |       _____ |       _____ |
-| linto-pyannote 1.0.0 (pyannote 2.1)|       15.06 |   **30.16** |       43.98 |   **15.84** |       16.57 |
-| linto-pyannote 1.1.0 (pyannote 3.1)|       12.49 |       33.66 |   **34.08** |       18.35 |   **13.67** |
-| linto-simple 1.0.1  (silero v4)    |       19.88 |   **30.38** |       37.03 |       30.74 |       21.14 |
+| linto-pyannote 1.0.0 (pyannote 2.1)|       15.06 |       30.16 |       43.98 |   **15.84** |       16.57 |
+| linto-pyannote 1.1.0 (pyannote 3.1)|       12.49 |       33.66 |       34.08 |       18.35 |       13.67 |
+| linto-pyannote 2.3.0 (community-1) |       12.80 |   **29.49** |   **29.05** |       17.61 |   **11.04** |
+| linto-simple 1.0.1  (silero v4)    |       19.88 |       30.38 |       37.03 |       30.74 |       21.14 |
 | linto-simple 1.1.0  (silero v3)    |       16.20 |       40.12 |       35.23 |       19.67 |       23.22 |
 | linto-simple 1.1.1 (silero v5)     |       17.82 |       41.50 |       37.00 |       28.85 |       23.78 |
  
@@ -94,7 +95,8 @@ __with unknown number of speakers:__
 | azure streaming                    |  ❓  63.44 |  ❓  72.50 |       27.78 |       _____ |       _____ |
 | azure                              |  ❓  29.53 |       34.12 |       17.30 |       _____ |       _____ |
 | linto-pyannote 1.0.0 (pyannote 2.1)|       15.06 |       32.24 |       45.57 |   **16.75** |       14.23 |
-| linto-pyannote 1.1.0 (pyannote 3.1)|       12.47 |       32.03 |   **32.52** |       17.78 |   **11.12** |
+| linto-pyannote 1.1.0 (pyannote 3.1)|       12.47 |       32.03 |       32.52 |       17.78 |       11.12 |
+| linto-pyannote 2.3.0 (community-1) |       12.80 |       29.49 |   **29.05** |       17.61 |   **11.04** |
 | linto-simple 1.0.1  (silero v4)    |     **7.50**|   **23.62** |       37.21 |       30.88 |       16.29 |
 | linto-simple 1.1.0  (silero v3)    |     **8.05**|   **23.02** |       35.82 |       21.02 |       15.43 |
 | linto-simple 1.1.1 (silero v5)     |       8.23  |     23.18   |       37.19 |       28.55 |       14.62 |
