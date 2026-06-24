@@ -36,6 +36,7 @@ _colors = {
         "orange",
         "gold",
         "yellowgreen",
+        "black",
     ],
     "azure": [
         "blue",
@@ -215,7 +216,7 @@ if __name__ == "__main__":
                         for i, spk in enumerate(nb_speakers):
                             plt.text(durations_minutes[i], 0, str(spk), color = _text_color(spk))
                     set_ylim0(vrams)
-                    plt.legend()
+                    plt.legend(loc="upper right")
                     plt.ylabel("VRAM Peak (MB)")
                     plt.subplot(2,1,2)
                 plt.suptitle(title)
@@ -224,7 +225,10 @@ if __name__ == "__main__":
                     for i, spk in enumerate(nb_speakers):
                         plt.text(durations_minutes[i], 0, str(spk), color = _text_color(spk))
                 set_ylim0(memories)
-                plt.legend()
+                # For the GPU figure both subplots share the same systems, so the
+                # legend is shown only in the top (VRAM) subplot.
+                if not use_gpu:
+                    plt.legend(loc="upper right")
                 plt.xlabel("Audio duration (min)")
                 plt.ylabel("RAM Peak (MB)")
                 

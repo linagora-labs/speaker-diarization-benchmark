@@ -209,7 +209,10 @@ def compute_file_scores(json_hyp):
     rttm_ref_nooverlap = rttm_ref + "_nooverlap.rttm" if REMOVE_OVERLAPS else rttm_ref
     rttm_hyp_nooverlap = rttm_hyp + "_nooverlap.rttm" if REMOVE_OVERLAPS else rttm_hyp
 
-    json2rttm(json_hyp, rttm_hyp)
+    # Only (re)generate the hypothesis RTTM when it is missing or older than the
+    # source JSON. This avoids re-parsing every (potentially large) JSON on each run.
+    if not os.path.exists(rttm_hyp) or os.path.getmtime(json_hyp) > os.path.getmtime(rttm_hyp):
+        json2rttm(json_hyp, rttm_hyp)
 
     if REMOVE_OVERLAPS:
         create_rttm_without_overlap(
@@ -520,7 +523,11 @@ if __name__ == "__main__":
                 for v in values:
                     nonentiles.append(np.percentile(v, 90))
 
-                plt.xticks(range(1, len(DER_result) + 1), ticks, rotation=10)
+                # Single-line labels rotated and right-anchored so long engine
+                # names (e.g. "pyannote 2.3.0 step0.25") stay readable and don't overlap.
+                tick_labels = [t.replace("\n", " ") for t in ticks]
+                plt.xticks(range(1, len(DER_result) + 1), tick_labels,
+                           rotation=40, ha="right", rotation_mode="anchor", fontsize=8)
                 plt.xlim(0.5, len(DER_result) + 0.5)
 
                 # Rescale y-axis
@@ -540,6 +547,8 @@ if __name__ == "__main__":
             
             perfname_ = "Difference in number of speakers" if is_number_of_speaker else (perfname + " (%)")
             plt.suptitle(perfname_)
+            # Space out the subplots so rotated tick labels don't overlap the row below.
+            plt.tight_layout(rect=(0, 0, 1, 0.97))
 
 
         print(f"DER {setting_spk.replace('_', ' ')} (collar={args.collar}):")
