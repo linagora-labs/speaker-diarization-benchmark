@@ -121,9 +121,61 @@ def get_processes(pids_to_ignore=[]):
 def get_processes_pid(pids_to_ignore=[]):
     return [p.info["pid"] for p in get_processes(pids_to_ignore=pids_to_ignore)]
 
-# Get RAM usage
+# Get RAM usage (sum of the RSS of a fixed set of PIDs). Kept as a fallback for
+# when the container memory cgroup cannot be resolved.
 def get_ram_usage(pids):
     return sum([psutil.Process(pid=p).memory_info().rss / (1024 * 1024) for p in pids])
+
+def _read_cgroup_int(path):
+    """Read a single-integer cgroup file (e.g. memory.current). None on failure."""
+    try:
+        with open(path) as f:
+            return int(f.read().split()[0])
+    except (OSError, ValueError, IndexError):
+        return None
+
+def _resolve_container_cgroup(pids):
+    """Locate the container's memory cgroup from one of its (host-visible) PIDs.
+
+    The monitored PIDs run inside the container, so their cgroup is the
+    container's -- which accounts for the WHOLE container process tree (the
+    server plus any worker/child it spawns per request) via the kernel's own
+    memory accounting, the same the OOM killer uses. This fixes the previous
+    approach that summed the RSS of a fixed PID list captured at startup and so
+    missed per-request child processes and spikes.
+
+    Returns (current_path, peak_path, version):
+      - current_path: instantaneous usage file (memory.current / memory.usage_in_bytes)
+      - peak_path: resettable high-water-mark file (memory.peak /
+        memory.max_usage_in_bytes), or None if unavailable
+      - version: 2, 1, or None when resolution failed.
+    Reading these files needs no privileges; resetting peak_path may need root.
+    """
+    for pid in pids:
+        try:
+            with open(f"/proc/{pid}/cgroup") as f:
+                entries = f.read().splitlines()
+        except OSError:
+            continue
+        # cgroup v2: a single unified hierarchy line "0::/<path>"
+        for line in entries:
+            hierarchy_id, controllers, path = line.split(":", 2)
+            if hierarchy_id == "0" and controllers == "":
+                base = "/sys/fs/cgroup" + path
+                current = os.path.join(base, "memory.current")
+                if os.path.exists(current):
+                    peak = os.path.join(base, "memory.peak")
+                    return current, (peak if os.path.exists(peak) else None), 2
+        # cgroup v1: the line carrying the "memory" controller
+        for line in entries:
+            hierarchy_id, controllers, path = line.split(":", 2)
+            if "memory" in controllers.split(","):
+                base = "/sys/fs/cgroup/memory" + path
+                current = os.path.join(base, "memory.usage_in_bytes")
+                if os.path.exists(current):
+                    peak = os.path.join(base, "memory.max_usage_in_bytes")
+                    return current, (peak if os.path.exists(peak) else None), 1
+    return None, None, None
 
 ############################################
 # Helpers to monitor memory (both RAM and VRAM)
@@ -139,9 +191,26 @@ class monitor_memory(object):
         self.pids = pids
         self.verbose = verbose
 
+    def _current_ram_mb(self):
+        """Current container RAM usage (MB), with a PID-RSS fallback."""
+        if self.cg_current_path is not None:
+            value = _read_cgroup_int(self.cg_current_path)
+            if value is not None:
+                return value / (1024 * 1024)
+        # Fallback when the cgroup could not be resolved/read.
+        try:
+            return get_ram_usage(self.pids)
+        except Exception:
+            return None
+
     def __enter__(self):
         # We have to use files because global variables are not shared between processes
         global LOG_FILE_RAM, LOG_FILE_VRAM, LOG_FILE_GPUS
+
+        # Resolve the container memory cgroup so we monitor the whole container,
+        # not just a fixed set of PIDs captured at startup.
+        self.cg_current_path, peak_path, self.cg_version = _resolve_container_cgroup(self.pids)
+
         LOG_FILE_RAM = tempfile.mktemp()
         self.file_ram = open(LOG_FILE_RAM, "w")
         LOG_FILE_VRAM = tempfile.mktemp()
@@ -149,17 +218,37 @@ class monitor_memory(object):
         LOG_FILE_GPUS = tempfile.mktemp()
         self.file_gpus = open(LOG_FILE_GPUS, "w")
         self.gpus = []
+
+        # Best effort: reset the kernel peak counter so it reflects only this
+        # request. The same file descriptor is kept open and read back on exit
+        # (cgroup v2 'memory.peak' tracks the max per open fd since its last
+        # reset). This captures spikes between samples and survives a child
+        # being OOM-killed. Resetting usually needs root; on failure we fall
+        # back transparently to the sampled maximum of memory.current.
+        self.peak_fd = None
+        if peak_path is not None:
+            fd = None
+            try:
+                fd = os.open(peak_path, os.O_RDWR)
+                os.write(fd, b"0")
+                self.peak_fd = fd
+            except OSError:
+                if fd is not None:
+                    os.close(fd)
+                self.peak_fd = None
+
         self.p = multiprocessing.Process(target=self.continuously_monitor_memory)
         self.p.start()
         return self
     
-    def continuously_monitor_memory(self, sleep_time=0.5):
+    def continuously_monitor_memory(self, sleep_time=0.2):
         while True:
-            memory = get_ram_usage(self.pids)
-            if self.verbose:
-                print(f"Memory usage: {memory} MB")
-            self.file_ram.write(f"{memory}\n")
-            self.file_ram.flush()
+            memory = self._current_ram_mb()
+            if memory is not None:
+                if self.verbose:
+                    print(f"Memory usage: {memory} MB")
+                self.file_ram.write(f"{memory}\n")
+                self.file_ram.flush()
             
             gpu_memory = get_vram_usage(self.pids)
             if gpu_memory:
@@ -180,6 +269,28 @@ class monitor_memory(object):
 
     def __exit__(self, *_):        
         self.p.terminate()
+        self.p.join()
+
+        # Always record one final sample so the peak is defined even for very
+        # fast requests the background sampler may not have caught.
+        final = self._current_ram_mb()
+        if final is not None:
+            self.file_ram.write(f"{final}\n")
+
+        # Fold in the kernel-tracked high-water mark (true peak across the whole
+        # container, including spikes between samples) when we could reset it.
+        if self.peak_fd is not None:
+            try:
+                os.lseek(self.peak_fd, 0, os.SEEK_SET)
+                raw = os.read(self.peak_fd, 64).decode().strip()
+                self.file_ram.write(f"{int(raw) / (1024 * 1024)}\n")
+            except (OSError, ValueError):
+                pass
+            finally:
+                os.close(self.peak_fd)
+                self.peak_fd = None
+
+        self.file_ram.flush()
         self.file_ram.close()
         self.file_vram.close()
         self.file_gpus.close()
