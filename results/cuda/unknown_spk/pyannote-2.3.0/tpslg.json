@@ -1,0 +1,199 @@
+{
+  "segments": [
+    {
+      "seg_begin": 0.031,
+      "seg_end": 56.596,
+      "seg_id": 1,
+      "spk_id": "spk1"
+    },
+    {
+      "seg_begin": 58.537,
+      "seg_end": 160.242,
+      "seg_id": 2,
+      "spk_id": "spk2"
+    },
+    {
+      "seg_begin": 161.204,
+      "seg_end": 198.059,
+      "seg_id": 3,
+      "spk_id": "spk1"
+    },
+    {
+      "seg_begin": 199.78,
+      "seg_end": 208.91,
+      "seg_id": 4,
+      "spk_id": "spk3"
+    },
+    {
+      "seg_begin": 209.213,
+      "seg_end": 213.837,
+      "seg_id": 5,
+      "spk_id": "spk3"
+    },
+    {
+      "seg_begin": 214.293,
+      "seg_end": 216.352,
+      "seg_id": 6,
+      "spk_id": "spk3"
+    },
+    {
+      "seg_begin": 216.858,
+      "seg_end": 217.887,
+      "seg_id": 7,
+      "spk_id": "spk3"
+    },
+    {
+      "seg_begin": 218.039,
+      "seg_end": 226.966,
+      "seg_id": 8,
+      "spk_id": "spk3"
+    },
+    {
+      "seg_begin": 227.438,
+      "seg_end": 253.325,
+      "seg_id": 9,
+      "spk_id": "spk3"
+    },
+    {
+      "seg_begin": 253.561,
+      "seg_end": 257.425,
+      "seg_id": 10,
+      "spk_id": "spk3"
+    },
+    {
+      "seg_begin": 259.366,
+      "seg_end": 261.172,
+      "seg_id": 11,
+      "spk_id": "spk1"
+    },
+    {
+      "seg_begin": 260.092,
+      "seg_end": 261.745,
+      "seg_id": 12,
+      "spk_id": "spk4"
+    },
+    {
+      "seg_begin": 261.745,
+      "seg_end": 293.723,
+      "seg_id": 13,
+      "spk_id": "spk1"
+    },
+    {
+      "seg_begin": 293.892,
+      "seg_end": 345.091,
+      "seg_id": 14,
+      "spk_id": "spk5"
+    },
+    {
+      "seg_begin": 341.243,
+      "seg_end": 341.277,
+      "seg_id": 15,
+      "spk_id": "spk3"
+    },
+    {
+      "seg_begin": 341.277,
+      "seg_end": 384.207,
+      "seg_id": 16,
+      "spk_id": "spk1"
+    },
+    {
+      "seg_begin": 356.077,
+      "seg_end": 357.207,
+      "seg_id": 17,
+      "spk_id": "spk5"
+    },
+    {
+      "seg_begin": 360.211,
+      "seg_end": 360.245,
+      "seg_id": 18,
+      "spk_id": "spk2"
+    },
+    {
+      "seg_begin": 360.245,
+      "seg_end": 360.97,
+      "seg_id": 19,
+      "spk_id": "spk5"
+    },
+    {
+      "seg_begin": 360.97,
+      "seg_end": 361.055,
+      "seg_id": 20,
+      "spk_id": "spk2"
+    },
+    {
+      "seg_begin": 381.49,
+      "seg_end": 381.676,
+      "seg_id": 21,
+      "spk_id": "spk5"
+    },
+    {
+      "seg_begin": 383.195,
+      "seg_end": 409.722,
+      "seg_id": 22,
+      "spk_id": "spk5"
+    },
+    {
+      "seg_begin": 410.65,
+      "seg_end": 422.125,
+      "seg_id": 23,
+      "spk_id": "spk4"
+    },
+    {
+      "seg_begin": 410.718,
+      "seg_end": 410.752,
+      "seg_id": 24,
+      "spk_id": "spk2"
+    },
+    {
+      "seg_begin": 410.752,
+      "seg_end": 410.937,
+      "seg_id": 25,
+      "spk_id": "spk5"
+    },
+    {
+      "seg_begin": 410.937,
+      "seg_end": 410.954,
+      "seg_id": 26,
+      "spk_id": "spk2"
+    },
+    {
+      "seg_begin": 410.954,
+      "seg_end": 410.988,
+      "seg_id": 27,
+      "spk_id": "spk5"
+    },
+    {
+      "seg_begin": 422.227,
+      "seg_end": 434.697,
+      "seg_id": 28,
+      "spk_id": "spk1"
+    }
+  ],
+  "speakers": [
+    {
+      "duration": 182.605,
+      "nbr_seg": 6,
+      "spk_id": "spk1"
+    },
+    {
+      "duration": 101.87500000000001,
+      "nbr_seg": 5,
+      "spk_id": "spk2"
+    },
+    {
+      "duration": 55.55199999999999,
+      "nbr_seg": 8,
+      "spk_id": "spk3"
+    },
+    {
+      "duration": 13.129,
+      "nbr_seg": 2,
+      "spk_id": "spk4"
+    },
+    {
+      "duration": 79.98900000000002,
+      "nbr_seg": 7,
+      "spk_id": "spk5"
+    }
+  ]
+}
