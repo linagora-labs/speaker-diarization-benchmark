@@ -313,6 +313,97 @@ def get_gpus():
 ############################################
 # Docker
 
+# Signatures used to explain *why* a request failed, by scanning the service
+# logs / HTTP response. Only consulted after a failure has already happened.
+#
+# IMPORTANT: gunicorn prints a generic "Perhaps out of memory?" on ANY worker
+# SIGKILL -- including its own *timeout* kill -- so a bare "out of memory" or
+# "killed" is NOT a reliable OOM signal. We therefore match the timeout first,
+# and only treat unambiguous signals as out-of-memory.
+_TIMEOUT_PATTERNS = [
+    "worker timeout",                  # gunicorn killed the worker after its time limit
+]
+_OOM_PATTERNS = [
+    "out of memory: killed process",   # Linux kernel OOM killer
+    "cuda out of memory",
+    "cuda error: out of memory",
+    "outofmemoryerror",                # torch.cuda.OutOfMemoryError
+    "cannot allocate memory",
+    "can't allocate memory",
+    "defaultcpuallocator",             # torch CPU allocator failure
+    "std::bad_alloc",
+    "bad_alloc",
+    "memoryerror",                     # Python MemoryError
+]
+
+def container_is_running(dockername):
+    """True if the named container still exists and is running."""
+    try:
+        out = subprocess.run(
+            ["docker", "inspect", "-f", "{{.State.Running}}", dockername],
+            capture_output=True, text=True,
+        ).stdout.strip()
+        return out == "true"
+    except Exception:
+        return False
+
+def detect_failure_reason(dockername, response=None):
+    """Return a short human-readable reason for the last failed request, or None.
+
+    Distinguishes a gunicorn worker timeout from a genuine out-of-memory
+    condition (the two look alike in the logs because gunicorn blames memory on
+    every SIGKILL). Looks at, in order: the container's OOMKilled flag, the HTTP
+    response body, the container log (tee'd to a file so it survives '--rm'),
+    and finally whether the server process vanished mid-request. Meant to be
+    called right after a request failure, before the container is stopped.
+    """
+    # Definitive OOM: the cgroup OOM killer fired (needs a memory limit set).
+    try:
+        flag = subprocess.run(
+            ["docker", "inspect", "-f", "{{.State.OOMKilled}}", dockername],
+            capture_output=True, text=True,
+        ).stdout.strip()
+        if flag == "true":
+            return "out of memory (container OOMKilled by cgroup limit)"
+    except Exception:
+        pass
+
+    # Scan the HTTP response body and the container logs.
+    blobs = []
+    if response is not None:
+        try:
+            blobs.append(response.content.decode("utf-8", "ignore"))
+        except Exception:
+            pass
+    logfile = os.path.join(tempfile.gettempdir(), f"{dockername}.log")
+    try:
+        with open(logfile, errors="ignore") as f:
+            blobs.append(f.read()[-20000:])  # last ~20 KB is enough
+    except OSError:
+        # Fall back to 'docker logs' if the tee'd file is unavailable.
+        try:
+            logs = subprocess.run(
+                ["docker", "logs", "--tail", "200", dockername],
+                capture_output=True, text=True,
+            )
+            blobs += [logs.stdout, logs.stderr]
+        except Exception:
+            pass
+    blob = "\n".join(b for b in blobs if b).lower()
+
+    # Timeout first: gunicorn's "Perhaps out of memory?" must not be mistaken
+    # for a real OOM when the actual cause is its worker timeout.
+    if any(p in blob for p in _TIMEOUT_PATTERNS):
+        return "worker timeout (request exceeded the server's gunicorn timeout)"
+    if any(p in blob for p in _OOM_PATTERNS):
+        return "out of memory"
+
+    # The server process vanished mid-request, cause not identified from logs.
+    if not container_is_running(dockername):
+        return "service process died mid-request (cause unknown)"
+
+    return None
+
 def launch_docker(tag, name="linto-diarization-pyannote", prefix = "diarization_bench", options=""):
 
     main_version = int(tag.split(".")[0])
@@ -551,6 +642,8 @@ if __name__ == "__main__":
                 slept_time = 0
                 max_sleep_time = 120 if first_run else -1
                 first_run = False
+                response = None
+                failure_reason = None
                 try:
                     while True:
                         try:
@@ -566,6 +659,14 @@ if __name__ == "__main__":
                         except Exception as err:
                             import traceback
                             print(traceback.format_exc())
+                            # Retrying won't fix a timeout or out-of-memory failure (and it
+                            # usually kills the server, which is why the connection was
+                            # reset). Detect it and stop retrying so it gets recorded
+                            # instead of crashing the whole benchmark blindly.
+                            failure_reason = detect_failure_reason(dockername, response)
+                            if failure_reason:
+                                print(f"Detected failure: {failure_reason}")
+                                break
                             if slept_time > max_sleep_time:
                                 raise err
                             print("Warning: retrying http request in 30 sec...")
@@ -574,16 +675,36 @@ if __name__ == "__main__":
                 finally:
                     fh.close()
 
-                ram_peak = get_ram_peak()
-                assert ram_peak is not None, "Something went wrong when monitoring RAM memory"
+                try:
+                    ram_peak = get_ram_peak()
+                except Exception:
+                    ram_peak = None
+                if failure_reason is None:
+                    assert ram_peak is not None, "Something went wrong when monitoring RAM memory"
+
+                # A non-200 response can also carry a timeout/out-of-memory error from the service.
+                if failure_reason is None and (response is None or response.status_code != 200):
+                    failure_reason = detect_failure_reason(dockername, response)
+
                 with open(output_filename_perfs, "w") as f:
                     print(f"Time: {time.time() - start:.2f} sec", file=f)
-                    print(f"Memory Peak: {ram_peak} MB", file=f)
+                    if ram_peak is not None:
+                        print(f"Memory Peak: {ram_peak} MB", file=f)
                     vram = get_vram_peak()
                     gpus = get_gpus()
                     if vram:
                         print(f"VRAM Peak: {vram} MB", file=f)
                         print(f"GPU(s): {gpus}", file=f)
+                    if failure_reason:
+                        print(f"Error: {failure_reason}", file=f)
+
+                if failure_reason:
+                    print(f"WARNING: failed on {file}: {failure_reason}")
+                    # If the service died, it cannot serve the remaining files.
+                    if not container_is_running(dockername):
+                        raise RuntimeError(
+                            f"Service died on {file}: {failure_reason}")
+                    continue
 
                 if response.status_code != 200:
                     print('Error:', response.status_code, response.reason)
