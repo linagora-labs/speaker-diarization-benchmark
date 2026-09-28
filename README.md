@@ -4,6 +4,7 @@ This is the benchmark of [linto-ai/linto-diarization](https://github.com/linto-a
 i.e. of images on [LinTO dockerhub](https://hub.docker.com/u/lintoai):
 * [`lintoai/linto-diarization-simple`](https://hub.docker.com/r/lintoai/linto-diarization-simple)
 * [`lintoai/linto-diarization-pyannote`](https://hub.docker.com/r/lintoai/linto-diarization-pyannote)
+* [`lintoai/linto-diarization-nemotron`](https://hub.docker.com/r/lintoai/linto-diarization-nemotron)
 * [`lintoai/linto-diarization-pybk`](https://hub.docker.com/r/lintoai/linto-diarization-pybk) (deprecated)
 
 which were previously (before a refactoring) all on [linto-platform-diarization](https://hub.docker.com/r/lintoai/linto-platform-diarization/tags)
@@ -82,9 +83,11 @@ __with given number of speakers:__
 | Engine                             |       ETAPE |    LINAGORA |     SUMM-RE |     Simsamu | VoxConverse |
 |------------------------------------|-------------|-------------|-------------|-------------|-------------|
 | azure                              |     **9.51**|       44.44 |       _____ |       _____ |       _____ |
+| linto-nemotron 1.1.0 ⁽¹⁾           |       _____ |       _____ |   **19.08** |       17.29 |    **8.24** |
 | linto-pyannote 1.0.0 (pyannote 2.1)|       15.06 |       30.16 |       43.98 |   **15.84** |       16.57 |
 | linto-pyannote 1.1.0 (pyannote 3.1)|       12.49 |       33.66 |       34.08 |       18.35 |       13.67 |
-| linto-pyannote 2.3.0 (community-1) |       12.80 |   **29.49** |   **29.05** |       17.61 |   **11.04** |
+| linto-pyannote 2.3.0 (community-1) ⁽²⁾ |   12.80 |   **29.49** |       29.05 |       17.61 |       11.04 |
+| linto-pyannote 2.3.1 (community-1) ⁽³⁾ |   _____ |       _____ |       29.41 |       18.38 |       22.36 |
 | linto-simple 1.0.1  (silero v4)    |       19.88 |       30.38 |       37.03 |       30.74 |       21.14 |
 | linto-simple 1.1.0  (silero v3)    |       16.20 |       40.12 |       35.23 |       19.67 |       23.22 |
 | linto-simple 1.1.1 (silero v5)     |       17.82 |       41.50 |       37.00 |       28.85 |       23.78 |
@@ -94,12 +97,24 @@ __with unknown number of speakers:__
 |------------------------------------|-------------|-------------|-------------|-------------|-------------|
 | azure streaming                    |  ❓  63.44 |  ❓  72.50 |       27.78 |       _____ |       _____ |
 | azure                              |  ❓  29.53 |       34.12 |       17.30 |       _____ |       _____ |
+| linto-nemotron 1.1.0 ⁽¹⁾           |       _____ |       _____ |   **19.08** |       17.29 |    **8.24** |
 | linto-pyannote 1.0.0 (pyannote 2.1)|       15.06 |       32.24 |       45.57 |   **16.75** |       14.23 |
 | linto-pyannote 1.1.0 (pyannote 3.1)|       12.47 |       32.03 |       32.52 |       17.78 |       11.12 |
-| linto-pyannote 2.3.0 (community-1) |       12.80 |       29.49 |   **29.05** |       17.61 |   **11.04** |
+| linto-pyannote 2.3.0 (community-1) |       12.80 |       29.49 |       29.05 |       17.61 |       11.04 |
+| linto-pyannote 2.3.1 (community-1) |       _____ |       _____ |       28.88 |       19.25 |       11.07 |
 | linto-simple 1.0.1  (silero v4)    |     **7.50**|   **23.62** |       37.21 |       30.88 |       16.29 |
 | linto-simple 1.1.0  (silero v3)    |     **8.05**|   **23.02** |       35.82 |       21.02 |       15.43 |
 | linto-simple 1.1.1 (silero v5)     |       8.23  |     23.18   |       37.19 |       28.55 |       14.62 |
+
+⁽¹⁾ Nemotron 3 Diarization (image `1.1.0-compiled`). It finds the number of speakers by itself, up to 8, and ignores the given number: both rows are the same.
+61 VoxConverse files have more than 8 speakers (11.7 on average).
+linto-nemotron 1.1.0 and linto-pyannote 2.3.1 were only run on SUMM-RE, Simsamu and VoxConverse (the ETAPE and LINAGORA audio is not public).
+
+⁽²⁾ The given number of speakers was ignored in this run: the benchmark sent `spk_number`, whereas images since September 2024 read `speaker_count`.
+Both fields are now sent.
+
+⁽³⁾ With a given number of speakers, pyannote.audio 4 (community-1) clusters again with KMeans when that number differs from the one found by VBx,
+which is much worse on VoxConverse (22.36 instead of 11.07). pyannote.audio used directly gives the same result.
 
 <!-- ⁽ⱽ⁾ : The problem of high DER of linto-simple on SimSamu is due to the Voice Activity Detection (VAD) that is removing too much speed.
 This is under investigation. -->
@@ -167,6 +182,13 @@ The lower the RTF, the better.
 #### GPU
 The following benchmark was run on NVIDIA GeForce GTX 1080 Ti (11.3GB of VRAM)
 ![RTF GPU](figs/real_time_factor_gpu.png)
+
+linto-nemotron 1.1.0 and linto-pyannote 2.3.1 were run on another GPU (NVIDIA GeForce RTX 4090 Laptop, 16 GB of VRAM), with an unknown number of speakers:
+
+| Engine                  | SUMM-RE (11.2 h) | Simsamu (1.1 h) | VoxConverse (43.5 h) | VRAM peak |
+|-------------------------|------------------|-----------------|----------------------|-----------|
+| linto-nemotron 1.1.0    | RTF 0.0009       | RTF 0.0010      | RTF 0.0010           | 3.8 GB    |
+| linto-pyannote 2.3.1    | RTF 0.0208       | RTF 0.0218      | RTF 0.0220           | 3.7 GB    |
 
 ### Memory consumption
 

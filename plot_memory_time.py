@@ -41,7 +41,11 @@ _colors = {
     "azure": [
         "blue",
         "lightblue",
-    ]
+    ],
+    "nemotron": [
+        "purple",
+        "violet",
+    ],
 }
 _used_colors = {}
 _system_to_colors = {}
