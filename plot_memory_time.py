@@ -69,7 +69,8 @@ if __name__ == "__main__":
     parser.add_argument('output', default = None, type=str, help='Output folder name to save figures', nargs='?')
     parser.add_argument('--ignore-old-versions', action='store_true', help='Ignore old versions of the engines')
     parser.add_argument('--spk-settings', default = "unknown", type=str, choices=["unknown", "known", "all"], help='Which speaker settings to plot')
-    parser.add_argument('--only', type=str, help='Only plot the engine that contains that string')
+    parser.add_argument('--only', type=str, help='Only plot the engines matching that regular expression')
+    parser.add_argument('--groups', type=str, default=",".join(MEMORY_TIME_GROUPS), help='Comma-separated list of datasets to use (default: %(default)s)')
     args = parser.parse_args()
 
     metadata = get_files_and_metadata()
@@ -77,6 +78,7 @@ if __name__ == "__main__":
 
     FIGSIZE = (10, 6)
     IGNORE_OLD_VERSIONS = args.ignore_old_versions
+    groups = args.groups.split(",")
     SPK_SETTINGS = r"*" if args.spk_settings == "all" else args.spk_settings
 
     index_engine = 0
@@ -112,7 +114,7 @@ if __name__ == "__main__":
 
                 engine_name_version = os.path.basename(path_engine_name)
 
-                if args.only and args.only not in engine_name_version:
+                if args.only and not re.search(args.only, engine_name_version):
                     continue
 
                 if IGNORE_OLD_VERSIONS:
@@ -146,7 +148,7 @@ if __name__ == "__main__":
                     recname = recname+".wav"                    
                     assert recname in metadata.keys(), f"Could not find information for {path_engine_name.path}/{js}\n --> Look for '{recname}' amoung possible values {metadata.keys()}"
 
-                    if metadata[recname]["group"] not in MEMORY_TIME_GROUPS:
+                    if metadata[recname]["group"] not in groups:
                         continue
 
                     duration = metadata[recname]["duration"]
@@ -189,7 +191,7 @@ if __name__ == "__main__":
                     continue
 
                 # Sort by duration
-                (durations, nb_speakers, times, memories) = zip(*sorted(zip(durations, nb_speakers, times, memories)))
+                (durations, nb_speakers, times, memories, vrams) = zip(*sorted(zip(durations, nb_speakers, times, memories, vrams)))
 
                 durations_minutes = [d/60 for d in durations]
                 rtfs = [t/d for t,d in zip(times, durations)]
