@@ -494,7 +494,8 @@ if __name__ == "__main__":
         folder_output = folder_output_cpu
     else:
         folder_output = folder_output_gpu
-    headers = {'accept': 'application/json'}
+    # The server handles one connection at a time: a kept-alive connection would block the next request
+    headers = {'accept': 'application/json', 'Connection': 'close'}
 
     print("Will monitor memory of processes:", pids)
 
@@ -540,7 +541,8 @@ if __name__ == "__main__":
                 print("Generating", output_filename_json)
                 print("Processing", file, "with", spk_number, "speakers")
                 fh = open(file, 'rb')
-                data = {'spk_number': spk_number, 'max_speaker': MAX_SPEAKER}
+                # speaker_count since linto-diarization 2024-09, spk_number before
+                data = {'speaker_count': spk_number, 'spk_number': spk_number, 'max_speaker': MAX_SPEAKER}
 
                 # start = time.time()
                 # with monitor_memory(pids):
