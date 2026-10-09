@@ -40,6 +40,12 @@ We use the following dataset, for which we have the ground truth in terms of spe
 * Simsamu: corpus of 23 simulated emergency calls, with 2 (sometimes 3) participants. Only corpus where original files have a sampling rate of 8kHz (others use 16 kHz).
 * VoxConverse: corpus of 232 YouTube video. This benchmark is commonly used to evaluate speaker diarization.
 
+The audio is not in this repository. `run_benchmark.py` reads it from `data/benchmark/wav`, and `run_benchmark_identification.py`
+from `data/benchmark_identification/wav` and `data/benchmark_identification/speakers_samples` (other folders can be given as arguments).
+The references are in `data/rttm` and `data/rttm_identification`.
+At LINAGORA, all the audio is on the data server, in `/data-server/datasets/audio/raw/speaker/diarization/LinTO_benchmark/wav`
+and `/data-server/datasets/audio/raw/speaker/identification/LinTO_benchmark/`.
+
 # Current results
 ## Accuracies
 
@@ -141,16 +147,18 @@ The following plot shows the distributions of the difference between the predict
 ### Speaker Identification
 
 The speaker identification benchmark (`run_benchmark_identification.py`) requires a
-[Qdrant](https://qdrant.tech) server, used by recent `linto-diarization-pyannote` images
-to store and match speaker embeddings. The script checks that a Qdrant server is reachable
-on `localhost:6333` and starts one automatically (in a detached container) if none is found:
+[Qdrant](https://qdrant.tech) server, used by recent `linto-diarization-pyannote` and `linto-diarization-nemotron` images
+to store and match speaker embeddings. The script does not start it, so start one before the run:
 
 ```bash
 docker run -d --rm --name qdrant_diarization_bench -p 6333:6333 -v ./qdrant_storage:/qdrant/storage:z qdrant/qdrant
 ```
 
-Use `--qdrant_host` / `--qdrant_port` to point to an existing server, and `--no_qdrant_autostart`
-to disable the automatic launch (in which case you must start Qdrant yourself beforehand).
+The diarization container reaches it on `host.docker.internal:6333`. Use `--qdrant_host` / `--qdrant_port` to point to another server.
+Each image fills its own collection (`speakers_<image>_<tag>`) with the voiceprints of `speakers_samples` when it starts.
+
+The overall IER printed by `plot_scores_identification.py` (and cached in `_overall.ier_overlap`) only covers the first recording:
+`rttm_to_pyannote` keeps the first file of the concatenated RTTM. The figure below uses the per-file values and is not affected.
 
 #### Identification Error Rates
 
