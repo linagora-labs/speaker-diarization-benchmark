@@ -163,6 +163,11 @@ and the ratio of known speakers that are not speaking on the recording.
 
 ![IER](figs/ier.png)
 
+linto-nemotron 1.1.0 and linto-pyannote 2.3.1 were run on the RTX 4090 laptop. Since these versions, a voiceprint must reach a similarity of 0.66 (0.5 before)
+and an enrolled speaker is given to one diarized speaker at most. When none of the speakers of the recording is enrolled (last column, unknown number of speakers),
+the average IER per file is 75.3 for linto-pyannote 2.3.0 (25 wrong names on 13 recordings), 33.5 for linto-pyannote 2.3.1 (3 wrong names) and 19.4 for linto-nemotron 1.1.0 (1 wrong name).
+The linto-pyannote 2.3.0 run with a given number of speakers was removed (the number was not sent).
+
 ## Performance
 
 ### Inference time

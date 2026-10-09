@@ -526,7 +526,7 @@ if __name__ == "__main__":
                 if icolumn == round((num_cols - 1) / 2):
                     plt.xlabel(setting_spk)
                 if irow == num_rows - 1:
-                    plt.xticks(range(1, len(perf) + 1), ticks, rotation=10)
+                    plt.xticks(range(1, len(perf) + 1), ticks, rotation=40, ha="right", rotation_mode="anchor", fontsize=8)
                 else:
                     plt.xticks(range(1, len(perf) + 1), "" * len(ticks))
 
