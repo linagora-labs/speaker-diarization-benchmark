@@ -34,8 +34,8 @@ which were previously (before a refactoring) all on [linto-platform-diarization]
 ## Dataset description
 
 We use the following dataset, for which we have the ground truth in terms of speaker diarization:
-* ETAPE: corpus of 3 radio recordings.
-* LINAGORA: corpus of 8 meeting recordings.
+* ETAPE: corpus of 3 radio recordings, from the [ETAPE corpus](https://catalogue.elra.info/en-us/repository/browse/ELRA-E0046/) (ELRA-E0046).
+* LINAGORA: corpus of 10 meeting recordings. The 8 `Linagora_*` files are available in [LINAGORA_Meetings_fr](https://dl.labs.linagora.com/files/datasets/OpenLLM-France/Luciole-Audio-Training-Dataset/audio/speech/LINAGORA_Meetings_fr) (longer file names, same audio). The 2 `meeting_RAP_*` files are not public.
 * SUMM-RE: corpus of 34 simulated meetings of around 30 minutes, with 4 participants (sometimes only 3 speaking).
 * Simsamu: corpus of 23 simulated emergency calls, with 2 (sometimes 3) participants. Only corpus where original files have a sampling rate of 8kHz (others use 16 kHz).
 * VoxConverse: corpus of 232 YouTube video. This benchmark is commonly used to evaluate speaker diarization.
@@ -83,10 +83,10 @@ __with given number of speakers:__
 | Engine                             |       ETAPE |    LINAGORA |     SUMM-RE |     Simsamu | VoxConverse |
 |------------------------------------|-------------|-------------|-------------|-------------|-------------|
 | azure                              |     **9.51**|       44.44 |       _____ |       _____ |       _____ |
-| linto-nemotron 1.1.0 ⁽¹⁾           |       _____ |       _____ |   **19.08** |       17.29 |    **8.24** |
+| linto-nemotron 1.1.0 ⁽¹⁾           |       23.34 |       36.08 |   **19.08** |       17.29 |    **8.24** |
 | linto-pyannote 1.0.0 (pyannote 2.1)|       15.06 |   **30.16** |       43.98 |   **15.84** |       16.57 |
 | linto-pyannote 1.1.0 (pyannote 3.1)|       12.49 |       33.66 |       34.08 |       18.35 |       13.67 |
-| linto-pyannote 2.3.1 (community-1) ⁽²⁾ |   _____ |       _____ |       29.41 |       18.38 |       22.36 |
+| linto-pyannote 2.3.1 (community-1) ⁽²⁾ |   28.76 |       42.50 |       29.41 |       18.38 |       22.36 |
 | linto-simple 1.0.1  (silero v4)    |       19.88 |       30.38 |       37.03 |       30.74 |       21.14 |
 | linto-simple 1.1.0  (silero v3)    |       16.20 |       40.12 |       35.23 |       19.67 |       23.22 |
 | linto-simple 1.1.1 (silero v5)     |       17.82 |       41.50 |       37.00 |       28.85 |       23.78 |
@@ -96,21 +96,22 @@ __with unknown number of speakers:__
 |------------------------------------|-------------|-------------|-------------|-------------|-------------|
 | azure streaming                    |  ❓  63.44 |  ❓  72.50 |       27.78 |       _____ |       _____ |
 | azure                              |  ❓  29.53 |       34.12 |       17.30 |       _____ |       _____ |
-| linto-nemotron 1.1.0 ⁽¹⁾           |       _____ |       _____ |   **19.08** |       17.29 |    **8.24** |
+| linto-nemotron 1.1.0 ⁽¹⁾           |       23.34 |       36.08 |   **19.08** |       17.29 |    **8.24** |
 | linto-pyannote 1.0.0 (pyannote 2.1)|       15.06 |       32.24 |       45.57 |   **16.75** |       14.23 |
 | linto-pyannote 1.1.0 (pyannote 3.1)|       12.47 |       32.03 |       32.52 |       17.78 |       11.12 |
 | linto-pyannote 2.3.0 (community-1) |       12.80 |       29.49 |       29.05 |       17.61 |       11.04 |
-| linto-pyannote 2.3.1 (community-1) |       _____ |       _____ |       28.88 |       19.25 |       11.07 |
+| linto-pyannote 2.3.1 (community-1) |       12.80 |       29.49 |       28.88 |       19.25 |       11.07 |
 | linto-simple 1.0.1  (silero v4)    |     **7.50**|   **23.62** |       37.21 |       30.88 |       16.29 |
 | linto-simple 1.1.0  (silero v3)    |     **8.05**|   **23.02** |       35.82 |       21.02 |       15.43 |
 | linto-simple 1.1.1 (silero v5)     |       8.23  |     23.18   |       37.19 |       28.55 |       14.62 |
 
 ⁽¹⁾ Nemotron 3 Diarization (image `1.1.0-compiled`). It finds the number of speakers by itself, up to 8, and ignores the given number: both rows are the same.
-61 VoxConverse files have more than 8 speakers (11.7 on average).
-linto-nemotron 1.1.0 and linto-pyannote 2.3.1 were only run on SUMM-RE, Simsamu and VoxConverse (the ETAPE and LINAGORA audio is not public).
+61 VoxConverse files have more than 8 speakers (11.7 on average), as well as 2 of the 3 ETAPE files (14 and 13) and 3 of the 10 LINAGORA files (9, 10 and 13).
+The ETAPE and LINAGORA references label almost the whole recording as speech, pauses inside turns included (98% and 99.9% of the duration, vs 81% for SUMM-RE and Simsamu).
+On LINAGORA, most of the gap with linto-pyannote 2.3.1 is missed speech (25.7% vs 14.6%, average per file), while speaker confusion is lower (6.0% vs 9.4%).
 
 ⁽²⁾ With a given number of speakers, pyannote.audio 4 (community-1) clusters again with KMeans when that number differs from the one found by VBx,
-which is much worse on VoxConverse (22.36 instead of 11.07). pyannote.audio used directly gives the same result.
+which is much worse (ETAPE 28.76 instead of 12.80, LINAGORA 42.50 instead of 29.49, VoxConverse 22.36 instead of 11.07). pyannote.audio used directly gives the same result.
 
 <!-- ⁽ⱽ⁾ : The problem of high DER of linto-simple on SimSamu is due to the Voice Activity Detection (VAD) that is removing too much speed.
 This is under investigation. -->
@@ -181,14 +182,15 @@ The following benchmark was run on NVIDIA GeForce GTX 1080 Ti (11.3GB of VRAM)
 
 linto-nemotron 1.1.0 and linto-pyannote 2.3.1 were run on another GPU (NVIDIA GeForce RTX 4090 Laptop, 16 GB of VRAM), with an unknown number of speakers:
 
-| Engine                  | SUMM-RE (11.2 h) | Simsamu (1.1 h) | VoxConverse (43.5 h) | VRAM peak |
-|-------------------------|------------------|-----------------|----------------------|-----------|
-| linto-nemotron 1.1.0    | RTF 0.0009       | RTF 0.0010      | RTF 0.0010           | 3.8 GB    |
-| linto-pyannote 2.3.1    | RTF 0.0208       | RTF 0.0218      | RTF 0.0220           | 3.7 GB    |
+| Engine                  | ETAPE (2.1 h) | LINAGORA (7.3 h) | SUMM-RE (11.2 h) | Simsamu (1.1 h) | VoxConverse (43.5 h) | VRAM peak |
+|-------------------------|---------------|------------------|------------------|-----------------|----------------------|-----------|
+| linto-nemotron 1.1.0    | RTF 0.0008    | RTF 0.0008       | RTF 0.0009       | RTF 0.0010      | RTF 0.0010           | 3.8 GB    |
+| linto-pyannote 2.3.1    | RTF 0.0215    | RTF 0.0215       | RTF 0.0208       | RTF 0.0218      | RTF 0.0220           | 3.7 GB    |
 
-These plots are on SUMM-RE, Simsamu and VoxConverse, as the ETAPE and LINAGORA audio was not available
-(`python3 plot_memory_time.py figs/rtx4090_laptop --groups SUMM-RE,Simsamu,VoxConverse --only 'nemotron|pyannote-2.3.1'`).
-The first point of linto-nemotron (RTF 0.12) is the warm-up of the compiled model.
+These plots use the same files as the 1080 Ti plots above
+(`python3 plot_memory_time.py figs/rtx4090_laptop --only 'nemotron|pyannote-2.3.1'`).
+The 1080 Ti plots leave these two runs out (`python3 plot_memory_time.py figs --only '^(?!nemotron|pyannote-2\.3\.1)'`).
+The first point of linto-nemotron (RTF 0.012) is the warm-up of the compiled model.
 ![RTF GPU RTX 4090](figs/rtx4090_laptop/real_time_factor_gpu.png)
 
 ### Memory consumption
