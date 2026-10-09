@@ -49,10 +49,17 @@ def load_rttm(file: str) -> RTTM:
     return rttm
  
 def get_pyannote_score(scorer, ref, hyp):
-    ref = conform_to_pyannote(ref)
-    hyp = conform_to_pyannote(hyp)
-    score = scorer(ref, hyp)
-    return score
+    if isinstance(ref, str):
+        ref = load_rttm(ref)
+    if isinstance(hyp, str):
+        hyp = load_rttm(hyp)
+    # Sum the error components over the recordings (the overall RTTM has all of them)
+    components = defaultdict(float)
+    for audio in ref:
+        details = scorer(rttm_to_pyannote(ref[audio]), rttm_to_pyannote(hyp.get(audio, [])), detailed=True)
+        for k in scorer.metric_components():
+            components[k] += details[k]
+    return scorer.compute_metric(components)
 
 def generate_mappings(list1, list2):
     if len(list2) > len(list1):
@@ -102,6 +109,7 @@ def get_pyannote_score_replacing_unknown_speakers(
         scorer: PyAnnote scorer function
         ref_file: reference file
         hyp_file: hypothesis file
+        candidate_speakers: list of enrolled speakers, or dict giving this list for each recording
         is_unknown: function to tell if a speaker is unknown (in linto-diarization, unknown speakers are named spkXX where XX is a number)
     """
     global _converted_hypothesis
@@ -120,6 +128,7 @@ def get_pyannote_score_replacing_unknown_speakers(
         unknown_speakers = set()
         known_speakers = set()
         hyp_audio = hyp[audio]
+        candidates = candidate_speakers.get(audio) if isinstance(candidate_speakers, dict) else candidate_speakers
         for spk, _, _ in hyp_audio:
             if is_unknown(spk):
                 unknown_speakers.add(spk)
@@ -127,16 +136,16 @@ def get_pyannote_score_replacing_unknown_speakers(
                 known_speakers.add(spk)
 
         # Sanity check
-        if candidate_speakers is not None:
-            assert not (known_speakers - set(candidate_speakers)), \
-                f"Some detected speakers are not among the candidate speakers in {hyp_file} : {known_speakers=} {candidate_speakers=} => {(known_speakers - set(candidate_speakers))}"
+        if candidates is not None:
+            assert not (known_speakers - set(candidates)), \
+                f"Some detected speakers are not among the candidate speakers in {hyp_file} : {known_speakers=} {candidates=} => {(known_speakers - set(candidates))}"
 
         if unknown_speakers:
 
-            if candidate_speakers is None:
+            if candidates is None:
                 continue
-            # assert candidate_speakers is not None, \
-            #     f"ERROR: candidate_speakers must be provided for {audio} (available: {list(_converted_hypothesis.keys())})"
+            # assert candidates is not None, \
+            #     f"ERROR: candidates must be provided for {audio} (available: {list(_converted_hypothesis.keys())})"
 
             # Collect all the target speakers
             target_speakers = set()
@@ -145,7 +154,7 @@ def get_pyannote_score_replacing_unknown_speakers(
 
             # Check if there are unknown target speakers
             unknown_speakers = list(unknown_speakers)
-            target_speakers = list(target_speakers - set(candidate_speakers))
+            target_speakers = list(target_speakers - set(candidates))
             if not target_speakers:
                 continue
 
@@ -170,16 +179,8 @@ def get_pyannote_score_replacing_unknown_speakers(
 
     return get_pyannote_score(scorer, ref, hyp)
 
-def conform_to_pyannote(annot):
-    if isinstance(annot, Annotation):
-        return annot
-    if isinstance(annot, str):
-        annot = load_rttm(annot)
-    return rttm_to_pyannote(annot)
-
-def rttm_to_pyannote(rttm: RTTM) -> "Annotation":
+def rttm_to_pyannote(segments: Sequence[Tuple[str, float, float]]) -> "Annotation":
     reference = Annotation()
-    segments = list(rttm.values())[0]
     for segment in segments:
         label, start, end = segment
         reference[Segment(start, end)] = label
@@ -309,6 +310,7 @@ if __name__ == "__main__":
 
                 all_rttm_ref = {}
                 all_rttm_hyp = {}
+                all_candidate_speakers = {}
                 for index, json_hyp in enumerate(json_files):
 
                     recname = os.path.basename(os.path.splitext(json_hyp)[0])
@@ -345,12 +347,13 @@ if __name__ == "__main__":
                     all_rttm_ref[setting_target_spk] = all_rttm_ref.get(setting_target_spk, []) + [rttm_ref]
                     all_rttm_hyp[setting_target_spk] = all_rttm_hyp.get(setting_target_spk, []) + [rttm_hyp]
 
-                    if scores is None:
+                    # Get the candidate speakers
+                    assert recname+".wav" in metadata, f"ERROR: {recname}.wav not in {metadata.keys()}"
+                    all_speakers = eval(metadata[recname+".wav"]["speakers"])
+                    candidate_speakers = get_candidate_speaker_for_setting(setting_target_spk, all_speakers)
+                    all_candidate_speakers[recname] = candidate_speakers
 
-                        # Get the candidate speakers
-                        assert recname+".wav" in metadata, f"ERROR: {recname}.wav not in {metadata.keys()}"
-                        all_speakers = eval(metadata[recname+".wav"]["speakers"])
-                        candidate_speakers = get_candidate_speaker_for_setting(setting_target_spk, all_speakers)
+                    if scores is None:
 
                         # Compute IER
                         try:
@@ -409,7 +412,7 @@ if __name__ == "__main__":
                                     if empty and args.verbose:
                                         print(f"WARNING: empty file {hyp}")
                         # Compute average IER
-                        score = _score_funcs[key_IER](cumulated_ref, cumulated_hyp, None) * 100
+                        score = _score_funcs[key_IER](cumulated_ref, cumulated_hyp, all_candidate_speakers) * 100
                         os.remove(cumulated_ref)
                         os.remove(cumulated_hyp)
 
@@ -418,8 +421,9 @@ if __name__ == "__main__":
                                 json.dump(score, f, indent=4)
 
                     # Collect IER
-                    all_iers[engine_name] = all_iers.get(engine_name, {})
-                    all_iers[engine_name][setting_target_spk] = score
+                    all_iers[setting_spk] = all_iers.get(setting_spk, {})
+                    all_iers[setting_spk][engine_name] = all_iers[setting_spk].get(engine_name, {})
+                    all_iers[setting_spk][engine_name][setting_target_spk] = score
 
             for iperf, (perfname, perfs) in enumerate(all_accuracies.items()):
                 if perfname not in perfnames_final:
@@ -530,30 +534,31 @@ if __name__ == "__main__":
                 else:
                     plt.xticks(range(1, len(perf) + 1), "" * len(ticks))
 
-    print(f"IER {setting_spk.replace('_', ' ')} (collar={args.collar}):")
-    all_settings_target_spk = set()
-    for engine_name in all_iers:
-        for setting_target_spk in all_iers[engine_name]:
-            all_settings_target_spk.add(setting_target_spk)
-    all_settings_target_spk = sorted(all_settings_target_spk, key=target_spk_setting_to_indices_for_sorting, reverse=True)
-    s = f"| {'Engine':28} |"
-    line = f"|{'-'*30}|"
-    for setting_target_spk in all_settings_target_spk:
-        s += f" {setting_target_spk:>11} |"
-        line += f"{'-'*18}|"
-    print(s)
-    print(line)
-    for engine_name in all_iers:
-        name = engine_name.replace("\n", " ")
-        name = format_system_name(name)
-        s = f"| {name:28} |"
+    for setting_spk, iers in all_iers.items():
+        print(f"IER {setting_spk.replace('_', ' ')} (collar={args.collar}):")
+        all_settings_target_spk = set()
+        for engine_name in iers:
+            for setting_target_spk in iers[engine_name]:
+                all_settings_target_spk.add(setting_target_spk)
+        all_settings_target_spk = sorted(all_settings_target_spk, key=target_spk_setting_to_indices_for_sorting, reverse=True)
+        s = f"| {'Engine':28} |"
+        line = f"|{'-'*30}|"
         for setting_target_spk in all_settings_target_spk:
-            score = all_iers[engine_name].get(setting_target_spk)
-            if score is None:
-                s += f" " + (" " * (16-5) + "_" * 5) + " |"
-            else:
-                s += f" {score:>16.2f} |"
+            s += f" {setting_target_spk:>11} |"
+            line += f"{'-'*18}|"
         print(s)
+        print(line)
+        for engine_name in iers:
+            name = engine_name.replace("\n", " ")
+            name = format_system_name(name)
+            s = f"| {name:28} |"
+            for setting_target_spk in all_settings_target_spk:
+                score = iers[engine_name].get(setting_target_spk)
+                if score is None:
+                    s += f" " + (" " * (16-5) + "_" * 5) + " |"
+                else:
+                    s += f" {score:>16.2f} |"
+            print(s)
 
     if args.output:
         for idx_figure, title in figures.items():            

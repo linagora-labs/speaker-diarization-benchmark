@@ -157,9 +157,6 @@ docker run -d --rm --name qdrant_diarization_bench -p 6333:6333 -v ./qdrant_stor
 The diarization container reaches it on `host.docker.internal:6333`. Use `--qdrant_host` / `--qdrant_port` to point to another server.
 Each image fills its own collection (`speakers_<image>_<tag>`) with the voiceprints of `speakers_samples` when it starts.
 
-The overall IER printed by `plot_scores_identification.py` (and cached in `_overall.ier_overlap`) only covers the first recording:
-`rttm_to_pyannote` keeps the first file of the concatenated RTTM. The figure below uses the per-file values and is not affected.
-
 #### Identification Error Rates
 
 The Identification Error Rate (IER) is just the speaker classification error rates over time.
@@ -175,6 +172,27 @@ linto-nemotron 1.1.0 and linto-pyannote 2.3.1 were run on the RTX 4090 laptop. S
 and an enrolled speaker is given to one diarized speaker at most. When none of the speakers of the recording is enrolled (last column, unknown number of speakers),
 the average IER per file is 75.3 for linto-pyannote 2.3.0 (25 wrong names on 13 recordings), 33.5 for linto-pyannote 2.3.1 (3 wrong names) and 19.4 for linto-nemotron 1.1.0 (1 wrong name).
 The linto-pyannote 2.3.0 run with a given number of speakers was removed (the number was not sent).
+
+The overall IER sums the errors of the 13 recordings, so long recordings weigh more than in the plot.
+Columns: share of the speakers of the recording that are enrolled, share of the enrolled speakers that do not speak in the recording.
+linto-nemotron ignores the given number of speakers, so it has the same scores in both tables.
+
+__with given number of speakers:__
+| Engine                  | 100% known, 0% absent | 100% known, 91% absent | 50% known, 0% absent | 50% known, 95% absent | 0% known, 100% absent |
+|-------------------------|----------:|----------:|----------:|----------:|----------:|
+| linto-nemotron 1.1.0    | **22.63** | **22.63** | **22.57** | **22.70** | **22.70** |
+| linto-pyannote 2.0.0    |     38.72 |     38.72 |     40.17 |     59.53 |     82.45 |
+| linto-pyannote 2.3.1    |     31.31 |     31.31 |     31.10 |     34.03 |     35.42 |
+| linto-simple 2.0.0      |     34.13 |     34.13 |     37.00 |     54.15 |     72.96 |
+
+__with unknown number of speakers:__
+| Engine                  | 100% known, 0% absent | 100% known, 91% absent | 50% known, 0% absent | 50% known, 95% absent | 0% known, 100% absent |
+|-------------------------|----------:|----------:|----------:|----------:|----------:|
+| linto-nemotron 1.1.0    | **22.63** | **22.63** | **22.57** | **22.70** | **22.70** |
+| linto-pyannote 2.0.0    |     32.87 |     32.87 |     35.84 |     54.72 |     72.83 |
+| linto-pyannote 2.3.0    |     29.59 |     29.59 |     32.50 |     51.92 |     71.88 |
+| linto-pyannote 2.3.1    |     29.60 |     29.60 |     29.53 |     32.36 |     34.43 |
+| linto-simple 2.0.0      |     34.97 |     34.97 |     38.26 |     55.27 |     73.89 |
 
 ## Performance
 
