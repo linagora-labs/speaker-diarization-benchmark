@@ -75,15 +75,30 @@ if __name__ == "__main__":
     parser.add_argument('--spk-settings', default = "unknown", type=str, choices=["unknown", "known", "all"], help='Which speaker settings to plot')
     parser.add_argument('--only', type=str, help='Only plot the engines matching that regular expression')
     parser.add_argument('--groups', type=str, default=",".join(MEMORY_TIME_GROUPS), help='Comma-separated list of datasets to use (default: %(default)s)')
+    parser.add_argument('--order', nargs='*', default=[], metavar='FAMILY',
+        help='System families to plot first, in this order (e.g. --order simple pyannote '
+             'nemotron). Matching is version-independent and ignores a "linto-" prefix. '
+             'Systems not listed keep their default order after the listed ones.')
     args = parser.parse_args()
 
     metadata = get_files_and_metadata()
-    
+
 
     FIGSIZE = (10, 6)
     IGNORE_OLD_VERSIONS = args.ignore_old_versions
     groups = args.groups.split(",")
     SPK_SETTINGS = r"*" if args.spk_settings == "all" else args.spk_settings
+
+    # Order systems on the plots: families listed in --order come first, in the given
+    # order; everything else follows by name. Matching is version-independent (the
+    # family is the folder name's leading token) and ignores a "linto-" prefix.
+    def _norm_system(name):
+        name = re.sub(r"[-_\s]+", " ", name).strip().lower()
+        return re.sub(r"^linto ", "", name)
+    ORDER_NORM = [_norm_system(x) for x in args.order]
+    def _order_rank(folder_name):
+        family = _norm_system(folder_name.split("-")[0])
+        return ORDER_NORM.index(family) if family in ORDER_NORM else len(ORDER_NORM)
 
     index_engine = 0
     engine_color = {}
@@ -108,7 +123,7 @@ if __name__ == "__main__":
             ind += 1
 
             sub_sub_folders = [f for f in os.scandir(path_setting_spk)]
-            sub_sub_folders = sorted(sub_sub_folders, key=lambda x: x.name)
+            sub_sub_folders = sorted(sub_sub_folders, key=lambda x: (_order_rank(x.name), x.name))
 
             print_spk_number = (ind == 0)
 

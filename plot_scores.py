@@ -266,6 +266,10 @@ if __name__ == "__main__":
         help='In default mode, keep only systems that processed at least this fraction '
              'of the fullest system\'s file set (default: 0.9); the rest are discarded '
              'from the plots. Ignored with --restrict-to-completed-by-all.')
+    parser.add_argument('--order', nargs='*', default=[], metavar='FAMILY',
+        help='System families to show first, in this order (e.g. --order simple pyannote '
+             'nemotron). Matching is version-independent and ignores a "linto-" prefix. '
+             'Systems not listed keep their default order after the listed ones.')
     args = parser.parse_args()
 
     _score_funcs = {
@@ -312,11 +316,20 @@ if __name__ == "__main__":
     RESTRICT_TO_COMPLETED_BY_ALL = args.restrict_to_completed_by_all
     MIN_COMPLETENESS = args.min_completeness
 
-    # Normalize system names (dash / underscore / space collapsed) so --exclude
-    # terms match regardless of the exact separator used.
+    # Normalize system names (dash / underscore / space collapsed, "linto" prefix
+    # dropped) so --exclude / --order terms match regardless of separator or prefix.
     def _norm_system(name):
-        return re.sub(r"[-_\s]+", " ", name).strip().lower()
+        name = re.sub(r"[-_\s]+", " ", name).strip().lower()
+        return re.sub(r"^linto ", "", name)
     EXCLUDE_SYSTEMS_NORM = set(_norm_system(x) for x in args.exclude)
+
+    # Rank used to order systems on the plots: families listed in --order come first,
+    # in the given order; everything else follows. The family is the leading token of
+    # the (newline-formatted) engine name, e.g. "pyannote" in "pyannote\n2.3.0".
+    ORDER_NORM = [_norm_system(x) for x in args.order]
+    def _order_rank(engine_name):
+        family = _norm_system(engine_name.split("\n")[0])
+        return ORDER_NORM.index(family) if family in ORDER_NORM else len(ORDER_NORM)
 
     _warned_if_recompute = False
     
@@ -378,7 +391,7 @@ if __name__ == "__main__":
             if "ignore" in engine_name:
                 continue
             all_engine_names.add(engine_name)
-    all_engine_names = sorted(all_engine_names, key= lambda x: ("streaming" not in x, x))
+    all_engine_names = sorted(all_engine_names, key= lambda x: (_order_rank(x), "streaming" not in x, x))
 
     # For each setting, determine which systems are "complete" (processed the whole
     # file set) and, when restricting, the set of files common to all systems. A
