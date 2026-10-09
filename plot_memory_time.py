@@ -41,7 +41,11 @@ _colors = {
     "azure": [
         "blue",
         "lightblue",
-    ]
+    ],
+    "moss": [
+        "purple",
+        "violet",
+    ],
 }
 _used_colors = {}
 _system_to_colors = {}

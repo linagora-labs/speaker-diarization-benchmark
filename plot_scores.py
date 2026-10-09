@@ -253,6 +253,19 @@ if __name__ == "__main__":
     parser.add_argument('--recompute', action='store_true', default=False, help='To force recompute all the DERs')
     parser.add_argument('--plot_distribution', default="violin", type=str, help='Type of plot for distribution of DERs', choices=["violin", "boxplot"])
     parser.add_argument('--verbose', action='store_true', default=False, help='Print more information (number of speakers...)')
+    parser.add_argument('--restrict-to-completed-by-all', action='store_true', default=False,
+        help='Score every system only on the files that ALL systems could process '
+             '(e.g. excluding files a system failed on due to out of memory). Without '
+             'this option, systems that did not process the full file set are discarded '
+             'from the corresponding plots.')
+    parser.add_argument('--exclude', nargs='*', default=[], metavar='SYSTEM',
+        help='System(s) to exclude from the plots, by name '
+             '(e.g. --exclude azure azure_streaming). Matches either the family name '
+             '(version-independent) or the full versioned name.')
+    parser.add_argument('--min-completeness', type=float, default=0.9, metavar='FRACTION',
+        help='In default mode, keep only systems that processed at least this fraction '
+             'of the fullest system\'s file set (default: 0.9); the rest are discarded '
+             'from the plots. Ignored with --restrict-to-completed-by-all.')
     args = parser.parse_args()
 
     _score_funcs = {
@@ -296,6 +309,14 @@ if __name__ == "__main__":
     RECOMPUTE_DER = args.recompute
     REMOVE_OVERLAPS = args.skip_overlap
     COMPUTE_DER_WITH_MDEVAL = args.use_mdeval
+    RESTRICT_TO_COMPLETED_BY_ALL = args.restrict_to_completed_by_all
+    MIN_COMPLETENESS = args.min_completeness
+
+    # Normalize system names (dash / underscore / space collapsed) so --exclude
+    # terms match regardless of the exact separator used.
+    def _norm_system(name):
+        return re.sub(r"[-_\s]+", " ", name).strip().lower()
+    EXCLUDE_SYSTEMS_NORM = set(_norm_system(x) for x in args.exclude)
 
     _warned_if_recompute = False
     
@@ -316,6 +337,11 @@ if __name__ == "__main__":
                 sub_sub_folders, key=lambda x: x.name.split("-")[-1], reverse=True)
             for path_engine_name in sub_sub_folders:
                 engine_name_version = os.path.basename(path_engine_name)
+                # Skip explicitly excluded systems (--exclude), matching either the
+                # family name (version-independent) or the full versioned folder name.
+                base_family = "-".join(engine_name_version.split("-")[:-1]) or engine_name_version
+                if EXCLUDE_SYSTEMS_NORM & {_norm_system(base_family), _norm_system(engine_name_version)}:
+                    continue
                 if IGNORE_OLD_VERSIONS:
                     # Remove the version number
                     engine_name = "-".join(engine_name_version.split("-")[:-1])
@@ -354,15 +380,79 @@ if __name__ == "__main__":
             all_engine_names.add(engine_name)
     all_engine_names = sorted(all_engine_names, key= lambda x: ("streaming" not in x, x))
 
+    # For each setting, determine which systems are "complete" (processed the whole
+    # file set) and, when restricting, the set of files common to all systems. A
+    # system that failed on some files (e.g. out of memory) has fewer files than the
+    # others; the union of all systems' files defines the full ("complete") set.
+    def _relevant_files(file_dict):
+        """Filenames in file_dict that map to a scored reference (present in the
+        metadata and belonging to one of the selected datasets)."""
+        result = set()
+        for fn in file_dict:
+            recname = os.path.basename(os.path.splitext(fn)[0]).split('.', 1)[0]
+            meta = metadata.get(recname + ".wav")
+            if meta and meta["group"] in dataset_names:
+                result.add(fn)
+        return result
+
+    kept_engines_per_setting = {}
+    allowed_files_per_setting = {}
+    for setting_spk, all_files_for_spk_setting in all_files.items():
+        per_engine_files = {}
+        for engine_name in all_engine_names:
+            rel = _relevant_files(all_files_for_spk_setting.get(engine_name, {}))
+            if rel:
+                per_engine_files[engine_name] = rel
+
+        if not per_engine_files:
+            kept_engines_per_setting[setting_spk] = []
+            allowed_files_per_setting[setting_spk] = None
+            continue
+
+        complete_set = set().union(*per_engine_files.values())
+
+        if RESTRICT_TO_COMPLETED_BY_ALL:
+            # Keep every system, but score only on the files ALL systems processed.
+            common = set.intersection(*per_engine_files.values())
+            kept_engines_per_setting[setting_spk] = list(per_engine_files.keys())
+            allowed_files_per_setting[setting_spk] = common
+            excluded = len(complete_set) - len(common)
+            if excluded:
+                print(f"[{setting_spk}] --restrict-to-completed-by-all: scoring on "
+                      f"{len(common)}/{len(complete_set)} files common to all "
+                      f"{len(per_engine_files)} systems ({excluded} files excluded)")
+        else:
+            # Discard systems that processed clearly fewer files than the fullest
+            # system (below the completeness tolerance). A one-file gap is tolerated;
+            # a system that failed on many files (e.g. OOM) is dropped.
+            max_count = max(len(rel) for rel in per_engine_files.values())
+            threshold = MIN_COMPLETENESS * max_count
+            kept = [e for e, rel in per_engine_files.items() if len(rel) >= threshold]
+            kept_engines_per_setting[setting_spk] = kept
+            allowed_files_per_setting[setting_spk] = None
+            for e, rel in per_engine_files.items():
+                if e in kept:
+                    continue
+                pct = 100.0 * len(rel) / max_count
+                print(f"[{setting_spk}] discarding system {e.replace(chr(10), ' ')}: "
+                      f"incomplete ({len(rel)}/{max_count} files, {pct:.0f}%, below the "
+                      f"{MIN_COMPLETENESS:.0%} threshold). Use --restrict-to-completed-by-all "
+                      f"to keep it and compare all systems on their common files, or "
+                      f"--min-completeness to change the threshold.")
+
     num_done = 0
     figures = {}
 
     # Total number of hypothesis files to evaluate (for the progress bar)
-    total_files = sum(
-        len(all_files_for_spk_setting.get(engine_name, {}))
-        for all_files_for_spk_setting in all_files.values()
-        for engine_name in all_engine_names
-    )
+    total_files = 0
+    for setting_spk, all_files_for_spk_setting in all_files.items():
+        allowed = allowed_files_per_setting[setting_spk]
+        for engine_name in kept_engines_per_setting[setting_spk]:
+            file_dict = all_files_for_spk_setting.get(engine_name, {})
+            if allowed is None:
+                total_files += len(file_dict)
+            else:
+                total_files += sum(1 for fn in file_dict if fn in allowed)
     progress_bar = tqdm(total=total_files, desc="Computing scores", unit="file")
 
     # Worker pool for the per-file score computation. Created here (after all the
@@ -373,10 +463,15 @@ if __name__ == "__main__":
 
         all_accuracies = {}
         all_ders = {}
-        for engine_name in all_engine_names:
+        allowed_files = allowed_files_per_setting[setting_spk]
+        for engine_name in kept_engines_per_setting[setting_spk]:
 
             progress_bar.set_description(f"{setting_spk} | {engine_name.replace(chr(10), ' ')}")
-            json_files = all_files_for_spk_setting.get(engine_name, {}).values()
+            file_dict = all_files_for_spk_setting.get(engine_name, {})
+            if allowed_files is None:
+                json_files = list(file_dict.values())
+            else:
+                json_files = [p for fn, p in file_dict.items() if fn in allowed_files]
             for dataset_name in dataset_names:
                 for k in perfnames_final:
                     all_accuracies[k] = all_accuracies.get(k, {})
@@ -536,7 +631,8 @@ if __name__ == "__main__":
                 else:
                     xmin, xmax, ymin, ymax = plt.axis()
                     if perfname not in TO_MAXIMIZE:
-                        plt.axis([xmin, xmax, 0, max(nonentiles)])
+                        if nonentiles:
+                            plt.axis([xmin, xmax, 0, max(nonentiles)])
                     else:
                         plt.axis([xmin, xmax, ymin, 100])
 
