@@ -1,0 +1,75 @@
+{
+  "engine": "nemotron",
+  "saturated": false,
+  "segments": [
+    {
+      "seg_begin": 0.03,
+      "seg_end": 9.57,
+      "seg_id": 1,
+      "spk_id": "spk1"
+    },
+    {
+      "seg_begin": 23.98,
+      "seg_end": 47.44,
+      "seg_id": 2,
+      "spk_id": "spk2"
+    },
+    {
+      "seg_begin": 47.71,
+      "seg_end": 50.56,
+      "seg_id": 3,
+      "spk_id": "spk3"
+    },
+    {
+      "seg_begin": 51.51,
+      "seg_end": 55.2,
+      "seg_id": 4,
+      "spk_id": "spk3"
+    },
+    {
+      "seg_begin": 55.72,
+      "seg_end": 64.64,
+      "seg_id": 5,
+      "spk_id": "spk4"
+    },
+    {
+      "seg_begin": 64.97,
+      "seg_end": 72.49,
+      "seg_id": 6,
+      "spk_id": "spk5"
+    },
+    {
+      "seg_begin": 73.36,
+      "seg_end": 74.76,
+      "seg_id": 7,
+      "spk_id": "spk5"
+    }
+  ],
+  "speakers": [
+    {
+      "duration": 9.54,
+      "nbr_seg": 1,
+      "spk_id": "spk1"
+    },
+    {
+      "duration": 23.46,
+      "nbr_seg": 1,
+      "spk_id": "spk2"
+    },
+    {
+      "duration": 6.54,
+      "nbr_seg": 2,
+      "spk_id": "spk3"
+    },
+    {
+      "duration": 8.92,
+      "nbr_seg": 1,
+      "spk_id": "spk4"
+    },
+    {
+      "duration": 8.92,
+      "nbr_seg": 2,
+      "spk_id": "spk5"
+    }
+  ]
+}

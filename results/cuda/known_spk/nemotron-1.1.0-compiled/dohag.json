@@ -1,0 +1,25 @@
+{
+  "engine": "nemotron",
+  "saturated": false,
+  "segments": [
+    {
+      "seg_begin": 0.84,
+      "seg_end": 24.72,
+      "seg_id": 1,
+      "spk_id": "spk1"
+    },
+    {
+      "seg_begin": 26.47,
+      "seg_end": 42.32,
+      "seg_id": 2,
+      "spk_id": "spk1"
+    }
+  ],
+  "speakers": [
+    {
+      "duration": 39.73,
+      "nbr_seg": 2,
+      "spk_id": "spk1"
+    }
+  ]
+}
